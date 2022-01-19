@@ -24,7 +24,7 @@ func dbDiagnostic(w http.ResponseWriter, r *http.Request) {
 
 	var (
 		uName    = os.Getenv("MARIADB_USERNAME")
-		password = os.Getenv("MARIADB_ADMIN_PASSWORD")
+		password = os.Getenv("MARIADB_PASSWORD")
 		hostName = os.Getenv("DB_HOST_NAME")
 		dbName   = os.Getenv("DB_NAME")
 	)
