@@ -3,13 +3,15 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-	_ "github.com/lib/pq"
+	"github.com/joho/godotenv"
 )
 
 const PORT = 8080
@@ -20,8 +22,15 @@ func helloWorld(w http.ResponseWriter, r *http.Request) {
 
 func dbDiagnostic(w http.ResponseWriter, r *http.Request) {
 
-	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_USERNAME"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"), os.Getenv("DB_SSL_MODE"))
-	db, err := sql.Open("postgres", psqlInfo)
+	var (
+		uName    = os.Getenv("MARIADB_USERNAME")
+		password = os.Getenv("MARIADB_ADMIN_PASSWORD")
+		hostName = os.Getenv("DB_HOST_NAME")
+		dbName   = os.Getenv("DB_NAME")
+	)
+
+	connInfo := fmt.Sprintf("%s:%s@tcp(%s)/%s", uName, password, hostName, dbName)
+	db, err := sql.Open("mysql", connInfo)
 	if err != nil {
 		panic(err)
 	}
@@ -37,6 +46,13 @@ func dbDiagnostic(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+
+	err := godotenv.Load(".env")
+
+	if err != nil {
+		log.Fatal("Error loading .env file, ", err)
+	}
+
 	router := mux.NewRouter()
 
 	router.HandleFunc("/", helloWorld).Methods("GET")
