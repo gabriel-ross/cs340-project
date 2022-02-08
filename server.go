@@ -16,10 +16,6 @@ import (
 
 const PORT = 8080
 
-func helloWorld(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Hello, world")
-}
-
 func dbDiagnostic(w http.ResponseWriter, r *http.Request) {
 
 	var (
@@ -45,6 +41,24 @@ func dbDiagnostic(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func newRouter() *mux.Router {
+	r := mux.NewRouter()
+
+	r.HandleFunc("/", pokemon).Methods("GET")
+	r.HandleFunc("/types", types).Methods("GET")
+	r.HandleFunc("/generations", generations).Methods("GET")
+	r.HandleFunc("/moves", moves).Methods("GET")
+	r.HandleFunc("/evolutions", evolutions).Methods("GET")
+	r.HandleFunc("/db/test", dbDiagnostic).Methods("GET")
+
+	staticFileDirectory := http.Dir("./assets/")
+	staticFileHandler := http.StripPrefix("/assets/", http.FileServer(staticFileDirectory))
+	r.PathPrefix("/assets/").Handler(staticFileHandler).Methods("GET")
+	r.Use(handlers.RecoveryHandler(handlers.PrintRecoveryStack(true)))
+
+	return r
+}
+
 func main() {
 
 	err := godotenv.Load(".env")
@@ -53,12 +67,24 @@ func main() {
 		log.Fatal("Error loading .env file, ", err)
 	}
 
-	router := mux.NewRouter()
-
-	router.HandleFunc("/", helloWorld).Methods("GET")
-	router.HandleFunc("/db/test", dbDiagnostic).Methods("GET")
-	router.Use(handlers.RecoveryHandler(handlers.PrintRecoveryStack(true)))
+	r := newRouter()
 
 	fmt.Printf("Server listening on port %d", PORT)
-	http.ListenAndServe(":"+strconv.Itoa(PORT), router)
+	http.ListenAndServe(":"+strconv.Itoa(PORT), r)
+}
+
+func pokemon(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, "Hello, Pokemon")
+}
+func moves(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, "Hello, Moves")
+}
+func generations(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, "Hello, Generations")
+}
+func types(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, "Hello, Types")
+}
+func evolutions(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, "Hello, Evolutions")
 }
