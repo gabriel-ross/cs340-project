@@ -57,9 +57,9 @@ func (t ElementalTypeModel) FindByID(id string) (*ElementalType, error) {
 	return &respElementalType, nil
 }
 
-func (t ElementalTypeModel) InsertTypeByName(name string) (sql.Result, error) {
+func (t ElementalTypeModel) InsertType(elementalType *ElementalType) (sql.Result, error) {
 	sqlStatement := "INSERT INTO Types (name) Values(?)"
-	result, err := t.db.Exec(sqlStatement, name)
+	result, err := t.db.Exec(sqlStatement, elementalType.Name)
 	return result, err
 }
 

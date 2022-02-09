@@ -30,10 +30,29 @@ func (s *ElementalTypeService) handleGetAllTypes(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// TODO: should preventing duplicate entries be done here or in the model/db
-// and then the error propagated?
+// model/SQL should handle duplicates
 func (s *ElementalTypeService) handleCreateType(c *gin.Context) {
-	//
+	defer c.Request.Body.Close()
+	data, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	elementType := &model.ElementalType{}
+	err = json.Unmarshal(data, elementType)
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	result, err := s.elementalType.InsertType(elementType)
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	c.JSON(http.StatusCreated, result)
 }
 
 func (s *ElementalTypeService) handleUpdateType(c *gin.Context) {
