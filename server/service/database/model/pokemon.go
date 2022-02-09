@@ -15,14 +15,13 @@ type Pokemon struct {
 }
 
 type PokemonModel struct {
-	tableName string
-	db        *sql.DB
+	db *sql.DB
 }
 
 // FindAll queries all entries in PokemonModel.DB and returns
 // a slice of Pokemon
 func (p PokemonModel) FindAll() ([]Pokemon, error) {
-	sqlStatement := fmt.Sprintf("SELECT * FROM %s", p.tableName)
+	sqlStatement := "SELECT * FROM Pokemon"
 	resp, err := p.db.Query(sqlStatement)
 	if err != nil {
 		return nil, err
@@ -54,7 +53,7 @@ func (p PokemonModel) FindAll() ([]Pokemon, error) {
 
 // FindByID queries PokemonModel.DB for an ID and returns a Pokemon
 func (p PokemonModel) FindByID(id string) (*Pokemon, error) {
-	sqlStatement := fmt.Sprintf("SELECT * FROM %s WHERE id=?", p.tableName)
+	sqlStatement := "SELECT * FROM Pokemon WHERE id=?"
 	resp := p.db.QueryRow(sqlStatement, id)
 
 	var respPokemon Pokemon
@@ -78,7 +77,7 @@ func (p PokemonModel) Find(query map[string]string) ([]Pokemon, error) {
 		return []Pokemon{*res}, err
 	}
 	var sqlStatement strings.Builder
-	sqlStatement.WriteString(fmt.Sprintf("SELECT * FROM %s WHERE ", p.tableName))
+	sqlStatement.WriteString("SELECT * FROM Pokemon WHERE ")
 	count := len(query)
 	for param, val := range query {
 		if val != "" {
@@ -126,13 +125,25 @@ func (p PokemonModel) Find(query map[string]string) ([]Pokemon, error) {
 }
 
 func (p PokemonModel) InsertPokemon(pk *Pokemon) (sql.Result, error) {
-	sqlStatement := fmt.Sprintf("INSERT INTO %s Values(?, ?, ?, ?, ?)", p.tableName)
+	sqlStatement := "INSERT INTO Pokemon Values(?, ?, ?, ?, ?)"
 	result, err := p.db.Exec(sqlStatement, pk.NDexId, pk.Name, pk.PrimaryType, pk.SecondaryType, pk.Generation)
 	return result, err
 }
 
+func (p PokemonModel) UpdatePokemonByID(pk *Pokemon) (sql.Result, error) {
+	sqlStatement := "UPDATE Pokemon SET name=?, primary_type=?, secondary_type=?, generation=? WHERE id=?"
+	result, err := p.db.Exec(sqlStatement, pk.Name, pk.PrimaryType, pk.SecondaryType, pk.Generation, pk.NDexId)
+	return result, err
+}
+
+func (p PokemonModel) UpdatePokemonByName(pk *Pokemon) (sql.Result, error) {
+	sqlStatement := "UPDATE Pokemon SET id=?, primary_type=?, secondary_type=?, generation=? WHERE name=?"
+	result, err := p.db.Exec(sqlStatement,  pk.NDexId, pk.PrimaryType, pk.SecondaryType, pk.Generation, pk.Name)
+	return result, err
+}
+
 func (p PokemonModel) DeletePokemonByID(id string) error {
-	sqlStatement := fmt.Sprintf("DELETE FROM %s WHERE id=?", p.tableName)
+	sqlStatement := "DELETE FROM Pokemon WHERE id=?"
 	_, err := p.db.Exec(sqlStatement, id)
 	return err
 }

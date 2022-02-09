@@ -2,32 +2,27 @@ package routing
 
 import (
 	"encoding/json"
+	"github.com/gabriel-ross/cs340-project/server/service/database/model"
 	"io/ioutil"
 	"net/http"
 
-	"github.com/gabriel-ross/cs340-project/server/service/model"
 	"github.com/gin-gonic/gin"
 )
 
-type Service struct {
+type PokemonService struct {
 	pokemon model.PokemonModel
 }
 
-func NewService(pokemon model.PokemonModel) *Service {
-	return &Service{
-		pokemon: pokemon,
-	}
-}
-
-func (s *Service) RegisterRoutes(g *gin.RouterGroup) {
+func (s *PokemonService) RegisterRoutes(g *gin.RouterGroup) {
 	pk := g.Group("/pokemon")
 	pk.GET("/all", s.handleGetAllPokemon)
 	pk.GET("/", s.handleGetPokemon)
 	pk.POST("/", s.handleCreatePokemon)
+	pk.PATCH("/:id", s.handleUpdatePokemonByID)
 	pk.DELETE("/:id", s.handleDeletePokemonByID)
 }
 
-func (s *Service) handleGetAllPokemon(c *gin.Context) {
+func (s *PokemonService) handleGetAllPokemon(c *gin.Context) {
 	result, err := s.pokemon.FindAll()
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
@@ -38,7 +33,7 @@ func (s *Service) handleGetAllPokemon(c *gin.Context) {
 
 // if id is set search by id (as it is a primary key) otherwise search
 // by variadic params]
-func (s *Service) handleGetPokemon(c *gin.Context) {
+func (s *PokemonService) handleGetPokemon(c *gin.Context) {
 	// return all Pokemon if no query parameters passed
 	if len(c.Request.URL.Query()) == 0 {
 		s.handleGetAllPokemon(c)
@@ -67,7 +62,7 @@ func (s *Service) handleGetPokemon(c *gin.Context) {
 	}
 }
 
-func (s *Service) handleCreatePokemon(c *gin.Context) {
+func (s *PokemonService) handleCreatePokemon(c *gin.Context) {
 	defer c.Request.Body.Close()
 	data, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
@@ -91,11 +86,43 @@ func (s *Service) handleCreatePokemon(c *gin.Context) {
 	c.JSON(http.StatusCreated, result)
 }
 
-func (s *Service) handleDeletePokemonByID(c *gin.Context) {
+func (s *PokemonService) handleUpdatePokemonByID(c *gin.Context) {
+	id := c.Param("id")
+	pokemon, err := s.pokemon.FindByID(id)
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	defer c.Request.Body.Close()
+	data, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+	err = json.Unmarshal(data, &pokemon)
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+	pokemon.NDexId = id
+	result, err := s.pokemon.UpdatePokemonByID(pokemon)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}
+
+// TODO: implement PATCH handler for updating by name so we can alter id if need be
+
+func (s *PokemonService) handleDeletePokemonByID(c *gin.Context) {
 	id := c.Param("id")
 	err := s.pokemon.DeletePokemonByID(id)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
+		return
 	}
 	c.Status(http.StatusNoContent)
 }

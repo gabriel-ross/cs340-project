@@ -2,9 +2,9 @@ package server
 
 import (
 	"database/sql"
+	"github.com/gabriel-ross/cs340-project/server/service/database/mariadb"
 	"log"
 
-	"github.com/gabriel-ross/cs340-project/server/service/database/mariadb"
 	"github.com/gin-gonic/gin"
 )
 
@@ -37,17 +37,21 @@ func (p *PokedexServer) Run() {
 	log.Fatal(p.router.Run())
 }
 
+func (p *PokedexServer) RegisterDB(db *sql.DB) {
+	p.db = db
+}
+
+func (p *PokedexServer) RegisterMariaDB(config mariadb.Config) error {
+	db, err := mariadb.ConnectWithConfig(config)
+	if err != nil {
+		return err
+	}
+	p.RegisterDB(db)
+	return nil
+}
+
 func (p *PokedexServer) RegisterRoutes(services ...RouterService) {
 	for _, service := range services {
 		service.RegisterRoutes(p.router)
 	}
-}
-
-// TODO: save credentials in order to restart db?
-func (p *PokedexServer) RegisterMariaDBService(username, password, host, port, dbName string) {
-	db, err := mariadb.Connect(username, password, host, port, dbName)
-	if err != nil {
-		log.Fatal(err)
-	}
-	p.db = db
 }
