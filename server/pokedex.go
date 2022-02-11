@@ -2,8 +2,9 @@ package server
 
 import (
 	"database/sql"
-	"github.com/gabriel-ross/cs340-project/server/service/database/mariadb"
 	"log"
+
+	"github.com/gabriel-ross/cs340-project/server/service/database/mariadb"
 
 	"github.com/gin-gonic/gin"
 )
@@ -30,11 +31,11 @@ func (p *PokedexServer) Use(middlewares ...gin.HandlerFunc) {
 	}
 }
 
-func (p *PokedexServer) Run() {
+func (p *PokedexServer) Run(port string) {
 	if p.db != nil {
 		defer p.db.Close()
 	}
-	log.Fatal(p.router.Run())
+	log.Fatal(p.router.Run(port))
 }
 
 func (p *PokedexServer) RegisterDB(db *sql.DB) {

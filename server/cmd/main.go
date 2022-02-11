@@ -9,5 +9,5 @@ func main() {
 	server := server.NewPokedexServer()
 	// register services/routes
 	// run server
-	server.Run()
+	server.Run(":80")
 }
