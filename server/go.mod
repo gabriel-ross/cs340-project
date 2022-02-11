@@ -1,4 +1,4 @@
-module github.com/gabriel-ross/cs340-project
+module github.com/gabriel-ross/cs340-project/server
 
 go 1.17
 
