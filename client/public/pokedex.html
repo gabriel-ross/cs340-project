@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+ <title>Pokédex</title>
+ <link rel="stylesheet" href="app.css">
+</head>
+
+<body>
+  <table>
+    <h1>Pokédex</h1>
+    <tr>
+      <th>National dex ID</th>
+      <th>Name</th>
+      <th>Primary Type</th>
+      <th>Secondary Type</th>
+      <th>Generation</th>
+      <th>Edit</th>
+      <th>Delete</th>
+    </tr>
+      <td>1</td>
+      <td><a href="./details.html">Bulbasaur</a></td>
+      <td>Grass</td>
+      <td>Poison</td>
+      <td>I</td>
+      <td><button type="button">Edit</button></td>
+      <td><button type="button">Delete</button></td>
+    </tr>
+  </table>
+  <br/>
+
+  <script>
+    pokeTable = document.querySelector("table")
+    fetch("/pokemon")
+    .then(response => response.json())
+    .then(pokeList => {
+      pokeList.forEach(pokemon => {
+      row = document.createElement("tr")
+      name = document.createElement("td")
+      name.innerHTML = pokemon.name
+      primaryType = document.createElement("td")
+      primaryType.innerHTML = pokemon.primaryType
+      secondaryType = document.createElement("td")
+      secondaryType.innerHTML = pokemon.secondaryType
+      generation = document.createElement("td")
+      generation.innerHTML = pokemon.generation
+      row.appendChild(name)
+      row.appendChild(primaryType)
+      row.appendChild(secondaryType)
+      row.appendChild(generation)
+      pokeTable.appendChild(row)
+      })
+    })
+  </script>
+  
+  <form action="/bird" method="post">
+    National dex ID:
+    <input type="text" name="id">
+    <br/> 
+    Name:
+    <input type="text" name="name">
+    <br/> 
+    Primary Type:
+    <input type="text" name="primaryType">
+    <br/>
+    Secondary Type:
+    <input type="text" name="primaryType">
+    <br/>
+    Generation:
+    <input type="text" name="primaryType">
+    <br/>
+    <input type="submit" value="Submit">
+  </form>
+  
+  <a id="return-link" href="./index.html">Home</a>
+</body>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+ <title>Movedex</title>
+ <link rel="stylesheet" href="app.css">
+</head>
+
+<body>
+  <table>
+  <h1>Movedex</h1>
+  <tr>
+    <th>Name</th>
+    <th>Type</th>
+  </tr>
+    <td>Tackle</td>
+    <td>Normal</td>
+    <td><button type="button">Edit</button></td>
+    <td><button type="button">Delete</button></td>
+  </tr>
+  </table>
+  <br/>
+
+  <script>
+  pokeTable = document.querySelector("table")
+  fetch("/moves")
+  .then(response => response.json())
+  .then(pokeList => {
+    pokeList.forEach(pokemon => {
+    row = document.createElement("tr")
+    name = document.createElement("td")
+    name.innerHTML = pokemon.name
+    type = document.createElement("td")
+    type.innerHTML = pokemon.type
+    row.appendChild(name)
+    row.appendChild(type)
+    })
+  })
+  </script>
+  
+  <form action="/bird" method="post">
+  Name
+  <input type="text" name="name">
+  <br/> 
+  Type:
+  <input type="text" name="type">
+  <br/> 
+  </form>
+  
+  <a href="./index.html">Home</a>
+</body>
