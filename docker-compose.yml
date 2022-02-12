@@ -8,3 +8,16 @@ services:
     restart: always
     ports:
       - "3000:3000"
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    restart: always
+    ports: 
+      - "80:80"
+    environment:
+      DB_HOST: db:3306
+
+  db:
+  
