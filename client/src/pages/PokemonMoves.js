@@ -1,3 +1,4 @@
+import  {useState } from "react";
 import NavBar from "../components/Navbar";
 import AddPokemonMovesForm from "../components/AddPokemonMoves";
 import {
@@ -6,10 +7,20 @@ import {
   Col,
   Table,
   Button,
+  Form,
+  Input,
   UncontrolledCollapse,
 } from "reactstrap";
+import {
+  useSearchParams
+} from "react-router-dom";
 
 function PokemonMoves() {
+  let [searchParams, setSearchParams] = useSearchParams();
+  let [query, setQuery] = useState(
+    searchParams.get("query")
+  );
+
   return (
     <div className="App">
       <NavBar />
@@ -27,20 +38,39 @@ function PokemonMoves() {
         </div>
         <Row>
           <Col>
+                      <div className="mt-4">
+              <Form>
+                <Row xs="2">
+                  <Col>
+                    <Input
+                      bsSize="sm"
+                      type="search"
+                      value={query}
+                      placeholder="Search by Pokémon or Move name..."
+                    />
+                  </Col>
+                  <Col>
+                    <Button color="primary" outline size="sm">
+                      Search
+                    </Button>
+                  </Col>
+                </Row>
+              </Form>
+            </div>
             <Table className="mt-3" hover responsive>
               <thead>
                 <tr>
                   <th>ID #</th>
-                  <th>Pokémon #</th>
-                  <th>Move #</th>
+                  <th>Pokémon</th>
+                  <th>Move</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
                   <th scope="row">1</th>
-                  <td>1</td>
-                  <td>1</td>
+                  <td>Bulbasaur</td>
+                  <td>Growl</td>
                   <td>
                     <div>
                       <Button color="primary" outline size="sm">
@@ -54,8 +84,8 @@ function PokemonMoves() {
                 </tr>
                 <tr>
                   <th scope="row">2</th>
-                  <td>1</td>
-                  <td>2</td>
+                  <td>Ivysaur</td>
+                  <td>Poison Powder</td>
                   <td>
                     <div>
                       <Button color="primary" outline size="sm">
@@ -69,8 +99,8 @@ function PokemonMoves() {
                 </tr>
                 <tr>
                   <th scope="row">3</th>
-                  <td>2</td>
-                  <td>3</td>
+                  <td>Venusaur</td>
+                  <td>Sleep Powder</td>
                   <td>
                     <div>
                       <Button color="primary" outline size="sm">

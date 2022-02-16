@@ -12,7 +12,7 @@ import {
 function NavBar() {
   return (
     <div>
-      <Navbar color="primary" dark expand="md" fixed="top" full light>
+      <Navbar color="primary" dark expand="md" fixed="top" light>
         <NavbarBrand href="/">PokéDex</NavbarBrand>
         <NavbarToggler onClick={function noRefCheck() {}} />
         <Collapse navbar>

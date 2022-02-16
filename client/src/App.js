@@ -10,6 +10,7 @@ import {
   Form,
   UncontrolledCollapse
 } from "reactstrap";
+import { Link } from "react-router-dom";
 
 function App() {
   return (
@@ -29,24 +30,6 @@ function App() {
         </div>
         <Row>
           <Col>
-            <div className="mt-4">
-              <Form>
-                <Row xs="2">
-                  <Col>
-                    <Input
-                      bsSize="sm"
-                      type="search"
-                      placeholder="Search by Pokémon name..."
-                    />
-                  </Col>
-                  <Col>
-                    <Button color="primary" outline size="sm">
-                      Search
-                    </Button>
-                  </Col>
-                </Row>
-              </Form>
-            </div>
             <Table className="mt-3" hover responsive>
               <thead>
                 <tr>
@@ -67,9 +50,10 @@ function App() {
                   <td>I</td>
                   <td>
                     <div>
+                      <Link to="/PokemonMoves?query=Bulbasaur">
                       <Button color="primary" outline size="sm">
                         View Moves
-                      </Button>{" "}
+                      </Button></Link>{" "}
                       <Button color="primary" outline size="sm">
                         Edit
                       </Button>{" "}
@@ -87,9 +71,10 @@ function App() {
                   <td>I</td>
                   <td>
                     <div>
+                      <Link to="/PokemonMoves?query=Ivysaur">
                       <Button color="primary" outline size="sm">
                         View Moves
-                      </Button>{" "}
+                      </Button></Link>{" "}
                       <Button color="primary" outline size="sm">
                         Edit
                       </Button>{" "}
@@ -107,9 +92,10 @@ function App() {
                   <td>I</td>
                   <td>
                     <div>
+                      <Link to="/PokemonMoves?query=Venusaur">
                       <Button color="primary" outline size="sm">
                         View Moves
-                      </Button>{" "}
+                      </Button></Link>{" "}
                       <Button color="primary" outline size="sm">
                         Edit
                       </Button>{" "}

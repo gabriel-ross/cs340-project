@@ -39,21 +39,6 @@ function Moves() {
               <tbody>
                 <tr>
                   <th scope="row">1</th>
-                  <td>Tackle</td>
-                  <td>Normal</td>
-                  <td>
-                    <div>
-                      <Button color="primary" outline size="sm">
-                        Edit
-                      </Button>{" "}
-                      <Button color="primary" outline size="sm">
-                        Delete
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">2</th>
                   <td>Growl</td>
                   <td>Normal</td>
                   <td>
@@ -68,9 +53,24 @@ function Moves() {
                   </td>
                 </tr>
                 <tr>
+                  <th scope="row">2</th>
+                  <td>Poison Powder</td>
+                  <td>Poison</td>
+                  <td>
+                    <div>
+                      <Button color="primary" outline size="sm">
+                        Edit
+                      </Button>{" "}
+                      <Button color="primary" outline size="sm">
+                        Delete
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
                   <th scope="row">3</th>
-                  <td>Water Gun</td>
-                  <td>Water</td>
+                  <td>Sleep Powder</td>
+                  <td>Grass</td>
                   <td>
                     <div>
                       <Button color="primary" outline size="sm">
