@@ -1,9 +1,10 @@
 FROM node
 
 WORKDIR /app/client
-COPY . .
-
+COPY ./package.json .
 RUN npm install
+
+COPY . .
 
 EXPOSE 3000
 

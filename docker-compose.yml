@@ -18,6 +18,3 @@ services:
       - "80:80"
     environment:
       DB_HOST: db:3306
-
-  db:
-  
