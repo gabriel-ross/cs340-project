@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 
 	"github.com/gabriel-ross/cs340-project/server/service/database/model"
 
@@ -37,7 +38,7 @@ func (s *Service) handleGetAllPokemon(c *gin.Context) {
 }
 
 // if id is set search by id (as it is a primary key) otherwise search
-// by variadic params]
+// by variadic params
 func (s *Service) handleGetPokemon(c *gin.Context) {
 	// return all Pokemon if no query parameters passed
 	if len(c.Request.URL.Query()) == 0 {
@@ -45,6 +46,11 @@ func (s *Service) handleGetPokemon(c *gin.Context) {
 		return
 	}
 	if id := c.Query("id"); id != "" {
+		id, err := strconv.Atoi(id)
+		if err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
 		result, err := s.model.FindByID(id)
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
@@ -92,7 +98,11 @@ func (s *Service) handleCreatePokemon(c *gin.Context) {
 }
 
 func (s *Service) handleUpdatePokemonByID(c *gin.Context) {
-	id := c.Param("id")
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
 	pokemon, err := s.model.FindByID(id)
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)

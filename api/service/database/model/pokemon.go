@@ -8,14 +8,15 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-// TODO: correct the data types for id, primary type, secondary type, generation to int
-// or should insertion replace these with primary keys?
+// TODO: queries need to properly convert between ID & name for
+// primary and secondary type
+
 type Pokemon struct {
-	NDexId        string `json:"national-dex-id"`
+	NDexId        int    `json:"national-dex-id,string"`
 	Name          string `json:"name"`
 	PrimaryType   string `json:"primary-type"`
 	SecondaryType string `json:"secondary-type"`
-	Generation    string `json:"generation"`
+	Generation    int    `json:"generation,string"`
 }
 
 type PokemonModel struct {
@@ -60,7 +61,7 @@ func (p PokemonModel) FindAll() ([]Pokemon, error) {
 }
 
 // FindByID queries PokemonModel.DB for an ID and returns a Pokemon
-func (p PokemonModel) FindByID(id string) (*Pokemon, error) {
+func (p PokemonModel) FindByID(id int) (*Pokemon, error) {
 	sqlStatement := "SELECT * FROM Pokemon WHERE id=?"
 	resp := p.db.QueryRow(sqlStatement, id)
 
@@ -80,10 +81,6 @@ func (p PokemonModel) FindByID(id string) (*Pokemon, error) {
 
 // return any pokemon that match the params in the passed in pokemon
 func (p PokemonModel) Find(query map[string]string) ([]Pokemon, error) {
-	if id, exists := query["id"]; exists {
-		res, err := p.FindByID(id)
-		return []Pokemon{*res}, err
-	}
 	var sqlStatement strings.Builder
 	sqlStatement.WriteString("SELECT * FROM Pokemon WHERE ")
 	count := len(query)
@@ -132,6 +129,8 @@ func (p PokemonModel) Find(query map[string]string) ([]Pokemon, error) {
 	return result, nil
 }
 
+// TODO: primary and secondary type need to query the types table for
+// the id's of the types
 func (p PokemonModel) InsertPokemon(pk *Pokemon) (sql.Result, error) {
 	sqlStatement := "INSERT INTO Pokemon Values(?, ?, ?, ?, ?)"
 	result, err := p.db.Exec(sqlStatement, pk.NDexId, pk.Name, pk.PrimaryType, pk.SecondaryType, pk.Generation)
