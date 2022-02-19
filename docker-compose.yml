@@ -33,7 +33,7 @@ services:
       dockerfile: Dockerfile
     restart: always
     volumes:
-      - /var/lib/mysql:/var/lib/mysql
+      - /var/lib/mysql/docker:/var/lib/mysql
     environment:
       MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
       MARIADB_DATABASE: ${DATABASE_NAME}

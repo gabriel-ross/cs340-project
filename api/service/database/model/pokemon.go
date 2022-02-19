@@ -8,6 +8,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+// TODO: correct the data types for id, primary type, secondary type, generation to int
+// or should insertion replace these with primary keys?
 type Pokemon struct {
 	NDexId        string `json:"national-dex-id"`
 	Name          string `json:"name"`
