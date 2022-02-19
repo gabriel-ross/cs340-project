@@ -9,6 +9,7 @@ import (
 	"github.com/gabriel-ross/cs340-project/server/routing/status"
 	"github.com/gabriel-ross/cs340-project/server/service/database/mariadb"
 	"github.com/gabriel-ross/cs340-project/server/service/database/model"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func main() {

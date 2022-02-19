@@ -10,9 +10,7 @@ CREATE TABLE `Pokemon` (
     `primary_type` int(11) NOT NULL,
     `secondary_type` int(11),
     `generation` int(11) NOT NULL,
-    PRIMARY KEY (`id`),
-    FOREIGN KEY (`primary_type`) REFERENCES `Types` (`id`),
-    FOREIGN KEY (`secondary_type`) REFERENCES `Types` (`id`)
+    PRIMARY KEY (`id`)
 );
 
--- TODO: write cascad logic
+-- TODO: write FK and cascade logic

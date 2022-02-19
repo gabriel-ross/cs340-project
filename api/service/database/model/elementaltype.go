@@ -2,6 +2,8 @@ package model
 
 import (
 	"database/sql"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 // type referred to as ElementalType to avoid conflict with Go "type" keyword
