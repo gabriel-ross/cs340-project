@@ -4,8 +4,12 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
+// TODO: correct the data types for id, primary type, secondary type, generation to int
+// or should insertion replace these with primary keys?
 type Pokemon struct {
 	NDexId        string `json:"national-dex-id"`
 	Name          string `json:"name"`
@@ -16,6 +20,10 @@ type Pokemon struct {
 
 type PokemonModel struct {
 	db *sql.DB
+}
+
+func NewPokemonModel(db *sql.DB) *PokemonModel {
+	return &PokemonModel{db: db}
 }
 
 // FindAll queries all entries in PokemonModel.DB and returns
@@ -138,7 +146,7 @@ func (p PokemonModel) UpdatePokemonByID(pk *Pokemon) (sql.Result, error) {
 
 func (p PokemonModel) UpdatePokemonByName(pk *Pokemon) (sql.Result, error) {
 	sqlStatement := "UPDATE Pokemon SET id=?, primary_type=?, secondary_type=?, generation=? WHERE name=?"
-	result, err := p.db.Exec(sqlStatement,  pk.NDexId, pk.PrimaryType, pk.SecondaryType, pk.Generation, pk.Name)
+	result, err := p.db.Exec(sqlStatement, pk.NDexId, pk.PrimaryType, pk.SecondaryType, pk.Generation, pk.Name)
 	return result, err
 }
 

@@ -2,25 +2,30 @@ package server
 
 import (
 	"database/sql"
-	"github.com/gabriel-ross/cs340-project/server/service/database/mariadb"
 	"log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 type RouterService interface {
-	RegisterRoutes(*gin.Engine)
+	RegisterRoutes(*gin.RouterGroup)
 }
 
 type PokedexServer struct {
-	router *gin.Engine
-	db     *sql.DB
+	router  *gin.Engine
+	baseURL *gin.RouterGroup
+	db      *sql.DB
 }
 
 func NewPokedexServer() *PokedexServer {
 	newServer := PokedexServer{
 		router: gin.New(),
 	}
+	newServer.baseURL = newServer.router.Group("")
+	newServer.baseURL.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, "hello, world")
+	})
 	return &newServer
 }
 
@@ -30,28 +35,19 @@ func (p *PokedexServer) Use(middlewares ...gin.HandlerFunc) {
 	}
 }
 
-func (p *PokedexServer) Run() {
+func (p *PokedexServer) Run(port string) {
 	if p.db != nil {
 		defer p.db.Close()
 	}
-	log.Fatal(p.router.Run())
+	log.Fatal(p.router.Run(port))
 }
 
 func (p *PokedexServer) RegisterDB(db *sql.DB) {
 	p.db = db
 }
 
-func (p *PokedexServer) RegisterMariaDB(config mariadb.Config) error {
-	db, err := mariadb.ConnectWithConfig(config)
-	if err != nil {
-		return err
-	}
-	p.RegisterDB(db)
-	return nil
-}
-
 func (p *PokedexServer) RegisterRoutes(services ...RouterService) {
 	for _, service := range services {
-		service.RegisterRoutes(p.router)
+		service.RegisterRoutes(p.baseURL)
 	}
 }

@@ -2,6 +2,8 @@ package model
 
 import (
 	"database/sql"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 // type referred to as ElementalType to avoid conflict with Go "type" keyword
@@ -12,6 +14,10 @@ type ElementalType struct {
 
 type ElementalTypeModel struct {
 	db *sql.DB
+}
+
+func NewElementalTypeModel(db *sql.DB) *ElementalTypeModel {
+	return &ElementalTypeModel{db: db}
 }
 
 func (t ElementalTypeModel) FindAll() ([]ElementalType, error) {
