@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 -- Reset db
 
+=======
+>>>>>>> main
 DROP TABLE IF EXISTS `Pokemon`;
 DROP TABLE IF EXISTS `Types`;
 DROP TABLE IF EXISTS `Moves`;

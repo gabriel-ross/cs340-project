@@ -10,7 +10,6 @@ import (
 
 // TODO: queries need to properly convert between ID & name for
 // primary and secondary type
-
 type Pokemon struct {
 	NDexId        int    `json:"national-dex-id,string"`
 	Name          string `json:"name"`
