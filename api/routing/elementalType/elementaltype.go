@@ -1,19 +1,26 @@
-package routing
+package elementalType
 
 import (
 	"encoding/json"
-	"github.com/gabriel-ross/cs340-project/server/service/database/model"
-	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/gabriel-ross/cs340-project/server/service/database/model"
+	"github.com/gin-gonic/gin"
 )
 
+// TODO: unexport the Service struct
+
 // type referred to as ElementalType to avoid conflict with Go "type" keyword
-type ElementalTypeService struct {
-	elementalType model.ElementalTypeModel
+type Service struct {
+	model model.ElementalTypeModel
 }
 
-func (s *ElementalTypeService) RegisterRoutes(g *gin.RouterGroup) {
+func NewService(model model.ElementalTypeModel) *Service {
+	return &Service{model: model}
+}
+
+func (s *Service) RegisterRoutes(g *gin.RouterGroup) {
 	g.GET("/types", s.handleGetAllTypes)
 	tg := g.Group("type")
 	tg.POST("/:name", s.handleCreateType)
@@ -21,8 +28,8 @@ func (s *ElementalTypeService) RegisterRoutes(g *gin.RouterGroup) {
 	tg.DELETE("/:name", s.handleDeleteTypeByName)
 }
 
-func (s *ElementalTypeService) handleGetAllTypes(c *gin.Context) {
-	result, err := s.elementalType.FindAll()
+func (s *Service) handleGetAllTypes(c *gin.Context) {
+	result, err := s.model.FindAll()
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -31,7 +38,7 @@ func (s *ElementalTypeService) handleGetAllTypes(c *gin.Context) {
 }
 
 // model/SQL should handle duplicates
-func (s *ElementalTypeService) handleCreateType(c *gin.Context) {
+func (s *Service) handleCreateType(c *gin.Context) {
 	defer c.Request.Body.Close()
 	data, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
@@ -46,7 +53,7 @@ func (s *ElementalTypeService) handleCreateType(c *gin.Context) {
 		return
 	}
 
-	result, err := s.elementalType.InsertType(elementType)
+	result, err := s.model.InsertType(elementType)
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
@@ -55,9 +62,9 @@ func (s *ElementalTypeService) handleCreateType(c *gin.Context) {
 	c.JSON(http.StatusCreated, result)
 }
 
-func (s *ElementalTypeService) handleUpdateType(c *gin.Context) {
+func (s *Service) handleUpdateType(c *gin.Context) {
 	id := c.Param("id")
-	elementalType, err := s.elementalType.FindByID(id)
+	elementalType, err := s.model.FindByID(id)
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
@@ -75,7 +82,7 @@ func (s *ElementalTypeService) handleUpdateType(c *gin.Context) {
 		return
 	}
 	elementalType.Id = id
-	result, err := s.elementalType.UpdateTypeByID(elementalType)
+	result, err := s.model.UpdateTypeByID(elementalType)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -84,9 +91,9 @@ func (s *ElementalTypeService) handleUpdateType(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-func (s *ElementalTypeService) handleDeleteTypeByName(c *gin.Context) {
+func (s *Service) handleDeleteTypeByName(c *gin.Context) {
 	name := c.Param("name")
-	err := s.elementalType.DeleteTypeByName(name)
+	err := s.model.DeleteTypeByName(name)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return

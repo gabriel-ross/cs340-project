@@ -14,6 +14,10 @@ type ElementalTypeModel struct {
 	db *sql.DB
 }
 
+func NewElementalTypeModel(db *sql.DB) *ElementalTypeModel {
+	return &ElementalTypeModel{db: db}
+}
+
 func (t ElementalTypeModel) FindAll() ([]ElementalType, error) {
 	sqlStatement := "SELECT * FROM Types"
 	resp, err := t.db.Query(sqlStatement)

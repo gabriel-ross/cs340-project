@@ -19,7 +19,7 @@ func ConnectWithConfig(config Config) (*sql.DB, error) {
 	return Connect(config.Username, config.Password, config.Host, config.Port, config.DBName)
 }
 
-func Connect(username, password, host, port, dbName string) (*sql.DB, error) {
+func Connect(host, port, dbName, username, password string) (*sql.DB, error) {
 	connInfo := fmt.Sprintf(
 		"%s:%s@tcp(%s:%s)/%s",
 		username, password, host, port, dbName,
