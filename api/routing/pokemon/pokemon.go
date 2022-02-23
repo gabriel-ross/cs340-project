@@ -4,18 +4,16 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 
-	"github.com/gabriel-ross/cs340-project/server/service/database/model"
-
+	"github.com/gabriel-ross/cs340-project/server/service/database/model/pokemon"
 	"github.com/gin-gonic/gin"
 )
 
 type Service struct {
-	model model.PokemonModel
+	model pokemon.Model
 }
 
-func NewService(model model.PokemonModel) *Service {
+func NewService(model pokemon.Model) *Service {
 	return &Service{model: model}
 }
 
@@ -46,11 +44,6 @@ func (s *Service) handleGetPokemon(c *gin.Context) {
 		return
 	}
 	if id := c.Query("id"); id != "" {
-		id, err := strconv.Atoi(id)
-		if err != nil {
-			c.AbortWithError(http.StatusBadRequest, err)
-			return
-		}
 		result, err := s.model.FindByID(id)
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
@@ -81,14 +74,14 @@ func (s *Service) handleCreatePokemon(c *gin.Context) {
 		return
 	}
 
-	pk := &model.Pokemon{}
+	pk := &pokemon.Pokemon{}
 	err = json.Unmarshal(data, pk)
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
-	result, err := s.model.InsertPokemon(pk)
+	result, err := s.model.Insert(pk)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -98,11 +91,7 @@ func (s *Service) handleCreatePokemon(c *gin.Context) {
 }
 
 func (s *Service) handleUpdatePokemonByID(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
+	id := c.Param("id")
 	pokemon, err := s.model.FindByID(id)
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
@@ -121,8 +110,8 @@ func (s *Service) handleUpdatePokemonByID(c *gin.Context) {
 		return
 	}
 	// prevent updating id via patch - must delete and post
-	pokemon.NDexId = id
-	result, err := s.model.UpdatePokemonByID(pokemon)
+	pokemon.Id = id
+	result, err := s.model.UpdateByID(pokemon)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -135,7 +124,7 @@ func (s *Service) handleUpdatePokemonByID(c *gin.Context) {
 
 func (s *Service) handleDeletePokemonByID(c *gin.Context) {
 	id := c.Param("id")
-	err := s.model.DeletePokemonByID(id)
+	err := s.model.DeleteByID(id)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
