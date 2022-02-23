@@ -5,18 +5,16 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/gabriel-ross/cs340-project/server/service/database/model"
+	"github.com/gabriel-ross/cs340-project/server/service/database/model/elementalType"
 	"github.com/gin-gonic/gin"
 )
 
-// TODO: unexport the Service struct
-
 // type referred to as ElementalType to avoid conflict with Go "type" keyword
 type Service struct {
-	model model.ElementalTypeModel
+	model elementalType.Model
 }
 
-func NewService(model model.ElementalTypeModel) *Service {
+func NewService(model elementalType.Model) *Service {
 	return &Service{model: model}
 }
 
@@ -46,14 +44,14 @@ func (s *Service) handleCreateType(c *gin.Context) {
 		return
 	}
 
-	elementType := &model.ElementalType{}
+	elementType := &elementalType.ElementalType{}
 	err = json.Unmarshal(data, elementType)
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
-	result, err := s.model.InsertType(elementType)
+	result, err := s.model.Insert(elementType)
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
@@ -82,7 +80,7 @@ func (s *Service) handleUpdateType(c *gin.Context) {
 		return
 	}
 	elementalType.Id = id
-	result, err := s.model.UpdateTypeByID(elementalType)
+	result, err := s.model.UpdateByID(elementalType)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -93,7 +91,7 @@ func (s *Service) handleUpdateType(c *gin.Context) {
 
 func (s *Service) handleDeleteTypeByName(c *gin.Context) {
 	name := c.Param("name")
-	err := s.model.DeleteTypeByName(name)
+	err := s.model.DeleteByName(name)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
