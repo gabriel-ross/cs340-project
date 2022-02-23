@@ -1,4 +1,3 @@
-.
 -- Reset db
 
 DROP TABLE IF EXISTS `Pokemon`;
