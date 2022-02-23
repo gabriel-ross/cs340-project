@@ -5,12 +5,14 @@ import (
 
 	"github.com/gabriel-ross/cs340-project/server"
 	"github.com/gabriel-ross/cs340-project/server/routing/elementalType"
+	"github.com/gabriel-ross/cs340-project/server/routing/generation"
+	"github.com/gabriel-ross/cs340-project/server/routing/move"
 	"github.com/gabriel-ross/cs340-project/server/routing/pokemon"
 	"github.com/gabriel-ross/cs340-project/server/routing/status"
 	"github.com/gabriel-ross/cs340-project/server/service/database/mariadb"
-	eTypeModel "github.com/gabriel-ross/cs340-project/server/service/database/model/pokemon"
-	generationModel "github.com/gabriel-ross/cs340-project/server/service/database/model/pokemon"
-	moveModel "github.com/gabriel-ross/cs340-project/server/service/database/model/pokemon"
+	eTypeModel "github.com/gabriel-ross/cs340-project/server/service/database/model/elementalType"
+	generationModel "github.com/gabriel-ross/cs340-project/server/service/database/model/generation"
+	moveModel "github.com/gabriel-ross/cs340-project/server/service/database/model/move"
 	pokemonModel "github.com/gabriel-ross/cs340-project/server/service/database/model/pokemon"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -34,8 +36,8 @@ func main() {
 	statusRoutes := status.NewService(db)
 	pokemonRoutes := pokemon.NewService(*pokemonModel.NewModel(db))
 	typeRoutes := elementalType.NewService(*eTypeModel.NewModel(db))
-	generationRoutes := elementalType.NewService(*generationModel.NewModel(db))
-	moveRoutes := elementalType.NewService(*moveModel.NewModel(db))
+	generationRoutes := generation.NewService(*generationModel.NewModel(db))
+	moveRoutes := move.NewService(*moveModel.NewModel(db))
 	// register services/routes
 	server.RegisterRoutes(statusRoutes, pokemonRoutes, typeRoutes, generationRoutes, moveRoutes)
 	// run server
