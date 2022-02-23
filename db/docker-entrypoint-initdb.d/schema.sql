@@ -21,7 +21,6 @@ CREATE TABLE `Types` (
     PRIMARY KEY (`id`)
 );
 
-
 CREATE TABLE `Pokemon` (
     `id` int(11) NOT NULL,
     `name` varchar(255) NOT NULL,
