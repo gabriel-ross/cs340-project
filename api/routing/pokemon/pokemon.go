@@ -9,6 +9,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// todo: modify routes to take in name of type & generation
+// todo: modify model to insert FK using subqueries
+// maybe?
+
 type Service struct {
 	model pokemon.Model
 }
@@ -17,13 +21,19 @@ func NewService(model pokemon.Model) *Service {
 	return &Service{model: model}
 }
 
+// todo: refactor routes so pokemon id is a param
 func (s *Service) RegisterRoutes(g *gin.RouterGroup) {
 	pk := g.Group("/pokemon")
 	pk.GET("/all", s.handleGetAllPokemon)
-	pk.GET("", s.handleGetPokemon)
-	pk.POST("", s.handleCreatePokemon)
+	pk.GET("/", s.handleGetPokemon)
+	pk.POST("/", s.handleCreatePokemon)
 	pk.PATCH("/:id", s.handleUpdatePokemonByID)
 	pk.DELETE("/:id", s.handleDeletePokemonByID)
+
+	pkm := pk.Group("/:pkid/moves")
+	pkm.GET("/", s.handleGetPokemonAllMoves)
+	pkm.POST("/:mvid", s.handlePokemonCreateMove)
+	pkm.DELETE("/:mvid", s.handlePokemonDeleteMove)
 }
 
 func (s *Service) handleGetAllPokemon(c *gin.Context) {
@@ -130,4 +140,36 @@ func (s *Service) handleDeletePokemonByID(c *gin.Context) {
 		return
 	}
 	c.Status(http.StatusNoContent)
+}
+
+func (s *Service) handleGetPokemonAllMoves(c *gin.Context) {
+	id := c.Param("pkid")
+	result, err := s.model.FindAllMovesByPokemonID(id)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	c.JSON(http.StatusOK, result)
+}
+
+func (s *Service) handlePokemonCreateMove(c *gin.Context) {
+	pkid := c.Param("pkid")
+	mvid := c.Param("mvid")
+	result, err := s.model.InsertPokemonMove(pkid, mvid)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	c.JSON(http.StatusOK, result)
+}
+
+func (s *Service) handlePokemonDeleteMove(c *gin.Context) {
+	pkid := c.Param("pkid")
+	mvid := c.Param("mvid")
+	result, err := s.model.DeletePokemonMove(pkid, mvid)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	c.JSON(http.StatusOK, result)
 }

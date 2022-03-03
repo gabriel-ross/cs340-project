@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/gabriel-ross/cs340-project/server/service/database/model/move"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -26,9 +27,9 @@ func NewModel(db *sql.DB) *Model {
 
 // FindAll queries all entries in Model.DB and returns
 // a slice of Pokemon
-func (p Model) FindAll() ([]Pokemon, error) {
+func (m Model) FindAll() ([]Pokemon, error) {
 	sqlStatement := "SELECT * FROM Pokemon"
-	resp, err := p.db.Query(sqlStatement)
+	resp, err := m.db.Query(sqlStatement)
 	if err != nil {
 		return nil, err
 	}
@@ -58,9 +59,9 @@ func (p Model) FindAll() ([]Pokemon, error) {
 }
 
 // FindByID queries Model.DB for an ID and returns a Pokemon
-func (p Model) FindByID(id string) (*Pokemon, error) {
+func (m Model) FindByID(id string) (*Pokemon, error) {
 	sqlStatement := "SELECT * FROM Pokemon WHERE id=?"
-	resp := p.db.QueryRow(sqlStatement, id)
+	resp := m.db.QueryRow(sqlStatement, id)
 
 	var respPokemon Pokemon
 	err := resp.Scan(
@@ -77,7 +78,7 @@ func (p Model) FindByID(id string) (*Pokemon, error) {
 }
 
 // return any pokemon that match the params in the passed in pokemon
-func (p Model) Find(query map[string]string) ([]Pokemon, error) {
+func (m Model) Find(query map[string]string) ([]Pokemon, error) {
 	var sqlStatement strings.Builder
 	sqlStatement.WriteString("SELECT * FROM Pokemon WHERE ")
 	count := len(query)
@@ -97,7 +98,7 @@ func (p Model) Find(query map[string]string) ([]Pokemon, error) {
 		}
 	}
 
-	resp, err := p.db.Query(sqlStatement.String())
+	resp, err := m.db.Query(sqlStatement.String())
 	if err != nil {
 		return nil, err
 	}
@@ -126,28 +127,67 @@ func (p Model) Find(query map[string]string) ([]Pokemon, error) {
 	return result, nil
 }
 
-// TODO: primary and secondary type need to query the types table for
-// the id's of the types
-func (p Model) Insert(pk *Pokemon) (sql.Result, error) {
+func (m Model) Insert(pk *Pokemon) (sql.Result, error) {
 	sqlStatement := "INSERT INTO Pokemon Values(?, ?, ?, ?, ?)"
-	result, err := p.db.Exec(sqlStatement, pk.Id, pk.Name, pk.PrimaryType, pk.SecondaryType, pk.Generation)
+	result, err := m.db.Exec(sqlStatement, pk.Id, pk.Name, pk.PrimaryType, pk.SecondaryType, pk.Generation)
 	return result, err
 }
 
-func (p Model) UpdateByID(pk *Pokemon) (sql.Result, error) {
+func (m Model) UpdateByID(pk *Pokemon) (sql.Result, error) {
 	sqlStatement := "UPDATE Pokemon SET name=?, primary_type=?, secondary_type=?, generation=? WHERE id=?"
-	result, err := p.db.Exec(sqlStatement, pk.Name, pk.PrimaryType, pk.SecondaryType, pk.Generation, pk.Id)
+	result, err := m.db.Exec(sqlStatement, pk.Name, pk.PrimaryType, pk.SecondaryType, pk.Generation, pk.Id)
 	return result, err
 }
 
-func (p Model) UpdateByName(pk *Pokemon) (sql.Result, error) {
+func (m Model) UpdateByName(pk *Pokemon) (sql.Result, error) {
 	sqlStatement := "UPDATE Pokemon SET id=?, primary_type=?, secondary_type=?, generation=? WHERE name=?"
-	result, err := p.db.Exec(sqlStatement, pk.Id, pk.PrimaryType, pk.SecondaryType, pk.Generation, pk.Name)
+	result, err := m.db.Exec(sqlStatement, pk.Id, pk.PrimaryType, pk.SecondaryType, pk.Generation, pk.Name)
 	return result, err
 }
 
-func (p Model) DeleteByID(id string) error {
+func (m Model) DeleteByID(id string) error {
 	sqlStatement := "DELETE FROM Pokemon WHERE id=?"
-	_, err := p.db.Exec(sqlStatement, id)
+	_, err := m.db.Exec(sqlStatement, id)
 	return err
+}
+
+func (m Model) FindAllMovesByPokemonID(id string) ([]move.Move, error) {
+	sqlQuery := `SELECT Moves.id, Moves.name, Moves.type FROM Pokemon_Moves
+	JOIN Moves ON Pokemon_Moves.move_id=Moves.id
+	WHERE Pokemon_Moves.pokemon_id=?`
+	resp, err := m.db.Query(sqlQuery, id)
+	if err != nil {
+		return nil, err
+	}
+	result := []move.Move{}
+
+	for resp.Next() {
+		var move move.Move
+		err := resp.Scan(
+			&move.Id,
+			&move.Name,
+			&move.Type,
+		)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, move)
+	}
+	if err = resp.Err(); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (m Model) InsertPokemonMove(pkid, mvid string) (sql.Result, error) {
+	sqlQuery := `INSERT INTO Pokemon_Moves VALUES(?, ?)`
+	result, err := m.db.Exec(sqlQuery, pkid, mvid)
+	return result, err
+}
+
+func (m Model) DeletePokemonMove(pkid, mvid string) (sql.Result, error) {
+	sqlQuery := `DELETE FROM Pokemon_Moves WHERE pokemon_id=? AND move_id=?`
+	result, err := m.db.Exec(sqlQuery, pkid, mvid)
+	return result, err
 }

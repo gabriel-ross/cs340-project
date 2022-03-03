@@ -32,7 +32,7 @@ CREATE TABLE `Pokemon` (
 ); 
 
 CREATE TABLE `Moves` (
-    `id` int(11) NOT NULL,
+    `id` int(11) NOT NULL AUTO_INCREMENT,
     `name` varchar(255) NOT NULL,
     `type` int(11) NOT NULL,
     PRIMARY KEY (`id`),
