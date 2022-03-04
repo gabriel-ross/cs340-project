@@ -24,13 +24,16 @@ func NewService(model pokemon.Model) *Service {
 // todo: refactor routes so pokemon id is a param
 func (s *Service) RegisterRoutes(g *gin.RouterGroup) {
 	pk := g.Group("/pokemon")
-	pk.GET("/all", s.handleGetAllPokemon)
-	pk.GET("/", s.handleGetPokemon)
-	pk.POST("/", s.handleCreatePokemon)
-	pk.PATCH("/:id", s.handleUpdatePokemonByID)
-	pk.DELETE("/:id", s.handleDeletePokemonByID)
+	pk.GET("/", s.handleGetAllPokemon)
 
-	pkm := pk.Group("/:pkid/moves")
+	pki := pk.Group("/:pkid")
+
+	pki.GET("/", s.handleGetPokemon)
+	pki.POST("/", s.handleCreatePokemon)
+	pki.PATCH("/", s.handleUpdatePokemonByID)
+	pki.DELETE("/", s.handleDeletePokemonByID)
+
+	pkm := pki.Group("/moves")
 	pkm.GET("/", s.handleGetPokemonAllMoves)
 	pkm.POST("/:mvid", s.handlePokemonCreateMove)
 	pkm.DELETE("/:mvid", s.handlePokemonDeleteMove)
