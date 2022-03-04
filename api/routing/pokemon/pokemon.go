@@ -2,6 +2,7 @@ package pokemon
 
 import (
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net/http"
 
@@ -21,24 +22,21 @@ func NewService(model pokemon.Model) *Service {
 	return &Service{model: model}
 }
 
-// todo: refactor routes so pokemon id is a param
 func (s *Service) RegisterRoutes(g *gin.RouterGroup) {
-	pk := g.Group("/pokemon")
-	pk.GET("/", s.handleGetAllPokemon)
+	pg := g.Group("/pokemon")
 
-	pki := pk.Group("/:pkid")
+	pg.GET("/", s.handleGetAllPokemon)
+	pg.GET("/:pkid", s.handleGetPokemon)
+	pg.POST("/:pkid", s.handleCreatePokemon)
+	pg.PATCH("/:pkid", s.handleUpdatePokemonByID)
+	pg.DELETE("/:pkid", s.handleDeletePokemonByID)
 
-	pki.GET("/", s.handleGetPokemon)
-	pki.POST("/", s.handleCreatePokemon)
-	pki.PATCH("/", s.handleUpdatePokemonByID)
-	pki.DELETE("/", s.handleDeletePokemonByID)
-
-	pkm := pki.Group("/moves")
-	pkm.GET("/", s.handleGetPokemonAllMoves)
-	pkm.POST("/:mvid", s.handlePokemonCreateMove)
-	pkm.DELETE("/:mvid", s.handlePokemonDeleteMove)
+	pg.GET("/:pkid/moves", s.handleGetPokemonAllMoves)
+	pg.POST("/:pkid/moves/:mvid", s.handlePokemonCreateMove)
+	pg.DELETE("/:pkid/moves/:mvid", s.handlePokemonDeleteMove)
 }
 
+// todo: implement filtering by queries in this path
 func (s *Service) handleGetAllPokemon(c *gin.Context) {
 	result, err := s.model.FindAll()
 	if err != nil {
@@ -48,35 +46,14 @@ func (s *Service) handleGetAllPokemon(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// if id is set search by id (as it is a primary key) otherwise search
-// by variadic params
 func (s *Service) handleGetPokemon(c *gin.Context) {
-	// return all Pokemon if no query parameters passed
-	if len(c.Request.URL.Query()) == 0 {
-		s.handleGetAllPokemon(c)
+	id := c.Param("pkid")
+	result, err := s.model.FindByID(id)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	if id := c.Query("id"); id != "" {
-		result, err := s.model.FindByID(id)
-		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
-		c.JSON(http.StatusOK, result)
-
-	} else {
-		query := map[string]string{
-			"name":       c.Query("name"),
-			"type":       c.Query("type"),
-			"generation": c.Query("generation"),
-		}
-		result, err := s.model.Find(query)
-		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
-		c.JSON(http.StatusOK, result)
-	}
+	c.JSON(http.StatusOK, result)
 }
 
 func (s *Service) handleCreatePokemon(c *gin.Context) {
@@ -88,14 +65,20 @@ func (s *Service) handleCreatePokemon(c *gin.Context) {
 	}
 
 	pk := &pokemon.Pokemon{}
-	err = json.Unmarshal(data, pk)
-	if err != nil {
+
+	if err := json.Unmarshal(data, pk); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	if pk.Id != c.Param("pkid") {
+		c.AbortWithError(http.StatusBadRequest, errors.New(`url parameter "id" and body "id" do not match`))
 		return
 	}
 
 	result, err := s.model.Insert(pk)
 	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
@@ -117,11 +100,17 @@ func (s *Service) handleUpdatePokemonByID(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	err = json.Unmarshal(data, &pokemon)
-	if err != nil {
+
+	if err := json.Unmarshal(data, &pokemon); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
+
+	if pokemon.Id != c.Param("pkid") {
+		c.AbortWithError(http.StatusBadRequest, errors.New(`url parameter "id" and body "id" do not match`))
+		return
+	}
+
 	// prevent updating id via patch - must delete and post
 	pokemon.Id = id
 	result, err := s.model.UpdateByID(pokemon)

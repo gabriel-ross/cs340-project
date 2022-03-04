@@ -2,6 +2,7 @@ package elementalType
 
 import (
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net/http"
 
@@ -19,8 +20,9 @@ func NewService(model elementalType.Model) *Service {
 }
 
 func (s *Service) RegisterRoutes(g *gin.RouterGroup) {
-	g.GET("/types", s.handleGetAllTypes)
-	tg := g.Group("type")
+	tg := g.Group("/types")
+	tg.GET("/", s.handleGetAllTypes)
+	tg.GET("/:name", s.handleGetTypeIDByName)
 	tg.POST("/:name", s.handleCreateType)
 	tg.PATCH("/:id", s.handleUpdateType)
 	tg.DELETE("/:name", s.handleDeleteTypeByName)
@@ -28,6 +30,16 @@ func (s *Service) RegisterRoutes(g *gin.RouterGroup) {
 
 func (s *Service) handleGetAllTypes(c *gin.Context) {
 	result, err := s.model.FindAll()
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	c.JSON(http.StatusOK, result)
+}
+
+func (s *Service) handleGetTypeIDByName(c *gin.Context) {
+	name := c.Param("name")
+	result, err := s.model.FindByName(name)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -51,9 +63,14 @@ func (s *Service) handleCreateType(c *gin.Context) {
 		return
 	}
 
+	if elementType.Id != c.Param("id") {
+		c.AbortWithError(http.StatusBadRequest, errors.New(`url parameter "id" and body "id" do not match`))
+		return
+	}
+
 	result, err := s.model.Insert(elementType)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
+		c.AbortWithError(http.StatusConflict, err)
 		return
 	}
 

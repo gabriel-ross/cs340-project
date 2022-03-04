@@ -18,11 +18,11 @@ func NewService(model move.Model) *Service {
 }
 
 func (s *Service) RegisterRoutes(g *gin.RouterGroup) {
-	g.GET("/moves", s.handleGetAllMoves)
-	tg := g.Group("move")
-	tg.POST("/:name", s.handleCreateMove)
-	tg.PATCH("/:id", s.handleUpdateMove)
-	tg.DELETE("/:name", s.handleDeleteMoveByName)
+	mg := g.Group("/moves")
+	mg.GET("/moves", s.handleGetAllMoves)
+	mg.POST("/:name", s.handleCreateMove)
+	mg.PATCH("/:id", s.handleUpdateMove)
+	mg.DELETE("/:name", s.handleDeleteMoveByName)
 }
 
 func (s *Service) handleGetAllMoves(c *gin.Context) {

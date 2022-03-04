@@ -18,11 +18,11 @@ func NewService(model generation.Model) *Service {
 }
 
 func (s *Service) RegisterRoutes(g *gin.RouterGroup) {
-	g.GET("/generations", s.handleGetAllGenerations)
-	tg := g.Group("generation")
-	tg.POST("/:name", s.handleCreateGeneration)
-	tg.PATCH("/:id", s.handleUpdateGeneration)
-	tg.DELETE("/:name", s.handleDeleteGenerationByName)
+	gg := g.Group("/generations")
+	gg.GET("/", s.handleGetAllGenerations)
+	gg.POST("/:name", s.handleCreateGeneration)
+	gg.PATCH("/:id", s.handleUpdateGeneration)
+	gg.DELETE("/:name", s.handleDeleteGenerationByName)
 }
 
 func (s *Service) handleGetAllGenerations(c *gin.Context) {

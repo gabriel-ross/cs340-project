@@ -10,11 +10,11 @@ import (
 )
 
 type Pokemon struct {
-	Id            string `json:"national-dex-id,string"`
+	Id            string `json:"id"`
 	Name          string `json:"name"`
-	PrimaryType   string `json:"primary-type"`
-	SecondaryType string `json:"secondary-type"`
-	Generation    string `json:"generation,string"`
+	PrimaryType   string `json:"primaryType"`
+	SecondaryType string `json:"secondaryType"`
+	Generation    string `json:"generation"`
 }
 
 type Model struct {
