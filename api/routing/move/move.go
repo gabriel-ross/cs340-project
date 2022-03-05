@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/gabriel-ross/cs340-project/server/service/database/model/move"
+	"github.com/gabriel-ross/cs340-project/server/storage/model/move"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,11 +19,13 @@ func NewService(model move.Model) *Service {
 
 func (s *Service) RegisterRoutes(g *gin.RouterGroup) {
 	mg := g.Group("/moves")
-	mg.GET("/moves", s.handleGetAllMoves)
-	mg.POST("/:name", s.handleCreateMove)
-	mg.PATCH("/:id", s.handleUpdateMove)
-	mg.DELETE("/:name", s.handleDeleteMoveByName)
+	mg.GET("/", s.handleGetAllMoves)
+	mg.POST("/", s.handleCreateMove)
+	mg.PATCH("/:mvid", s.handleUpdateMove)
+	mg.DELETE("/:mvid", s.handleDeleteMoveByID)
 }
+
+// todo: implement filtering
 
 func (s *Service) handleGetAllMoves(c *gin.Context) {
 	result, err := s.model.FindAll()
@@ -34,7 +36,6 @@ func (s *Service) handleGetAllMoves(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// model/SQL should handle duplicates
 func (s *Service) handleCreateMove(c *gin.Context) {
 	defer c.Request.Body.Close()
 	data, err := ioutil.ReadAll(c.Request.Body)
@@ -44,8 +45,8 @@ func (s *Service) handleCreateMove(c *gin.Context) {
 	}
 
 	move := &move.Move{}
-	err = json.Unmarshal(data, move)
-	if err != nil {
+
+	if err := json.Unmarshal(data, move); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
@@ -57,10 +58,11 @@ func (s *Service) handleCreateMove(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, result)
+
 }
 
 func (s *Service) handleUpdateMove(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Param("mvid")
 	move, err := s.model.FindByID(id)
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
@@ -73,13 +75,15 @@ func (s *Service) handleUpdateMove(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	err = json.Unmarshal(data, &move)
-	if err != nil {
+
+	if err := json.Unmarshal(data, &move); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
+
 	move.Id = id
-	result, err := s.model.UpdateByID(move)
+
+	result, err := s.model.Update(move)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -88,9 +92,9 @@ func (s *Service) handleUpdateMove(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-func (s *Service) handleDeleteMoveByName(c *gin.Context) {
-	name := c.Param("name")
-	err := s.model.DeleteByName(name)
+func (s *Service) handleDeleteMoveByID(c *gin.Context) {
+	id := c.Param("mvid")
+	err := s.model.DeleteByID(id)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return

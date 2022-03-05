@@ -6,9 +6,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-// TODO: new insertions should insert into the Pokemon_Move table as well.
-// This should also be done in the Pokemon table
-
 type Move struct {
 	Id   string `json:"id"`
 	Name string `json:"name"`
@@ -23,9 +20,11 @@ func NewModel(db *sql.DB) *Model {
 	return &Model{db: db}
 }
 
+// todo: implement filtering queries
+
 func (m Model) FindAll() ([]Move, error) {
-	sqlStatement := "SELECT * FROM Moves"
-	resp, err := m.db.Query(sqlStatement)
+	sqlQuery := "SELECT * FROM Moves"
+	resp, err := m.db.Query(sqlQuery)
 	if err != nil {
 		return nil, err
 	}
@@ -38,6 +37,7 @@ func (m Model) FindAll() ([]Move, error) {
 		err := resp.Scan(
 			&respMove.Id,
 			&respMove.Name,
+			&respMove.Type,
 		)
 		if err != nil {
 			return nil, err
@@ -52,13 +52,14 @@ func (m Model) FindAll() ([]Move, error) {
 }
 
 func (m Model) FindByID(id string) (*Move, error) {
-	sqlStatement := "SELECT * FROM Moves WHERE id=?"
-	resp := m.db.QueryRow(sqlStatement, id)
+	sqlQuery := "SELECT * FROM Moves WHERE id=?"
+	resp := m.db.QueryRow(sqlQuery, id)
 
 	var respMove Move
 	err := resp.Scan(
 		&respMove.Id,
 		&respMove.Name,
+		&respMove.Type,
 	)
 	if err != nil {
 		return nil, err
@@ -67,8 +68,8 @@ func (m Model) FindByID(id string) (*Move, error) {
 }
 
 func (m Model) FindByName(name string) (*Move, error) {
-	sqlStatement := "SELECT * FROM Moves WHERE name=?"
-	resp := m.db.QueryRow(sqlStatement, name)
+	sqlQuery := "SELECT * FROM Moves WHERE name=?"
+	resp := m.db.QueryRow(sqlQuery, name)
 
 	var respMove Move
 	err := resp.Scan(
@@ -81,20 +82,26 @@ func (m Model) FindByName(name string) (*Move, error) {
 	return &respMove, nil
 }
 
-func (m Model) Insert(gen *Move) (sql.Result, error) {
-	sqlStatement := "INSERT INTO Moves (name) Values(?)"
-	result, err := m.db.Exec(sqlStatement, gen.Name)
+func (m Model) Insert(move *Move) (sql.Result, error) {
+	sqlQuery := "INSERT INTO Moves (name, type) Values(?, ?)"
+	result, err := m.db.Exec(sqlQuery, move.Name, move.Type)
 	return result, err
 }
 
-func (m Model) UpdateByID(gen *Move) (sql.Result, error) {
-	sqlStatement := "UPDATE Moves SET name=? WHERE id=?"
-	result, err := m.db.Exec(sqlStatement, gen.Name, gen.Id)
+func (m Model) Update(move *Move) (sql.Result, error) {
+	sqlQuery := "UPDATE Moves SET name=?, type=? WHERE id=?"
+	result, err := m.db.Exec(sqlQuery, move.Name, move.Type, move.Id)
 	return result, err
+}
+
+func (m Model) DeleteByID(id string) error {
+	sqlQuery := "DELETE FROM Moves WHERE id=?"
+	_, err := m.db.Exec(sqlQuery, id)
+	return err
 }
 
 func (m Model) DeleteByName(name string) error {
-	sqlStatement := "DELETE FROM Moves WHERE name=?"
-	_, err := m.db.Exec(sqlStatement, name)
+	sqlQuery := "DELETE FROM Moves WHERE name=?"
+	_, err := m.db.Exec(sqlQuery, name)
 	return err
 }

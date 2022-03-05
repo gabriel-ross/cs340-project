@@ -83,10 +83,16 @@ func (m Model) Insert(gen *Generation) (sql.Result, error) {
 	return result, err
 }
 
-func (m Model) UpdateByID(gen *Generation) (sql.Result, error) {
+func (m Model) Update(gen *Generation) (sql.Result, error) {
 	sqlStatement := "UPDATE Generations SET name=? WHERE id=?"
 	result, err := m.db.Exec(sqlStatement, gen.Name, gen.Id)
 	return result, err
+}
+
+func (m Model) DeleteByID(id string) error {
+	sqlStatement := "DELETE FROM Generations WHERE id=?"
+	_, err := m.db.Exec(sqlStatement, id)
+	return err
 }
 
 func (m Model) DeleteByName(name string) error {

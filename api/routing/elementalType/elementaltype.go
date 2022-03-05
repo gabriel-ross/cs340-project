@@ -2,11 +2,10 @@ package elementalType
 
 import (
 	"encoding/json"
-	"errors"
 	"io/ioutil"
 	"net/http"
 
-	"github.com/gabriel-ross/cs340-project/server/service/database/model/elementalType"
+	"github.com/gabriel-ross/cs340-project/server/storage/model/elementalType"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,14 +20,24 @@ func NewService(model elementalType.Model) *Service {
 
 func (s *Service) RegisterRoutes(g *gin.RouterGroup) {
 	tg := g.Group("/types")
-	tg.GET("/", s.handleGetAllTypes)
-	tg.GET("/:name", s.handleGetTypeIDByName)
-	tg.POST("/:name", s.handleCreateType)
-	tg.PATCH("/:id", s.handleUpdateType)
-	tg.DELETE("/:name", s.handleDeleteTypeByName)
+	tg.GET("/", s.handleGetTypes)
+	tg.POST("/", s.handleCreateType)
+	tg.PATCH("/:tid", s.handleUpdateType)
+	tg.DELETE("/", s.handleDeleteTypeByName)
+	tg.DELETE("/:tid", s.handleDeleteTypeByID)
 }
 
-func (s *Service) handleGetAllTypes(c *gin.Context) {
+func (s *Service) handleGetTypes(c *gin.Context) {
+	if name := c.Query("name"); name != "" {
+		result, err := s.model.FindByName(name)
+		if err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+		c.JSON(http.StatusOK, result)
+		return
+	}
+
 	result, err := s.model.FindAll()
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
@@ -37,17 +46,6 @@ func (s *Service) handleGetAllTypes(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-func (s *Service) handleGetTypeIDByName(c *gin.Context) {
-	name := c.Param("name")
-	result, err := s.model.FindByName(name)
-	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
-	c.JSON(http.StatusOK, result)
-}
-
-// model/SQL should handle duplicates
 func (s *Service) handleCreateType(c *gin.Context) {
 	defer c.Request.Body.Close()
 	data, err := ioutil.ReadAll(c.Request.Body)
@@ -63,14 +61,9 @@ func (s *Service) handleCreateType(c *gin.Context) {
 		return
 	}
 
-	if elementType.Id != c.Param("id") {
-		c.AbortWithError(http.StatusBadRequest, errors.New(`url parameter "id" and body "id" do not match`))
-		return
-	}
-
 	result, err := s.model.Insert(elementType)
 	if err != nil {
-		c.AbortWithError(http.StatusConflict, err)
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
@@ -78,7 +71,7 @@ func (s *Service) handleCreateType(c *gin.Context) {
 }
 
 func (s *Service) handleUpdateType(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Param("tid")
 	elementalType, err := s.model.FindByID(id)
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
@@ -97,7 +90,7 @@ func (s *Service) handleUpdateType(c *gin.Context) {
 		return
 	}
 	elementalType.Id = id
-	result, err := s.model.UpdateByID(elementalType)
+	result, err := s.model.Update(elementalType)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -107,8 +100,21 @@ func (s *Service) handleUpdateType(c *gin.Context) {
 }
 
 func (s *Service) handleDeleteTypeByName(c *gin.Context) {
-	name := c.Param("name")
-	err := s.model.DeleteByName(name)
+	if name := c.Query("name"); name != "" {
+		err := s.model.DeleteByName(name)
+		if err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+		c.Status(http.StatusNoContent)
+		return
+	}
+	c.Status(http.StatusBadRequest)
+}
+
+func (s *Service) handleDeleteTypeByID(c *gin.Context) {
+	id := c.Param("tid")
+	err := s.model.DeleteByID(id)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return

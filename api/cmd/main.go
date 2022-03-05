@@ -9,11 +9,11 @@ import (
 	"github.com/gabriel-ross/cs340-project/server/routing/move"
 	"github.com/gabriel-ross/cs340-project/server/routing/pokemon"
 	"github.com/gabriel-ross/cs340-project/server/routing/status"
-	"github.com/gabriel-ross/cs340-project/server/service/database/mariadb"
-	eTypeModel "github.com/gabriel-ross/cs340-project/server/service/database/model/elementalType"
-	generationModel "github.com/gabriel-ross/cs340-project/server/service/database/model/generation"
-	moveModel "github.com/gabriel-ross/cs340-project/server/service/database/model/move"
-	pokemonModel "github.com/gabriel-ross/cs340-project/server/service/database/model/pokemon"
+	"github.com/gabriel-ross/cs340-project/server/storage/mariadb"
+	eTypeModel "github.com/gabriel-ross/cs340-project/server/storage/model/elementalType"
+	generationModel "github.com/gabriel-ross/cs340-project/server/storage/model/generation"
+	moveModel "github.com/gabriel-ross/cs340-project/server/storage/model/move"
+	pokemonModel "github.com/gabriel-ross/cs340-project/server/storage/model/pokemon"
 
 	_ "github.com/go-sql-driver/mysql"
 )

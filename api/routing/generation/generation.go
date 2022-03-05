@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/gabriel-ross/cs340-project/server/service/database/model/generation"
+	"github.com/gabriel-ross/cs340-project/server/storage/model/generation"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,9 +20,9 @@ func NewService(model generation.Model) *Service {
 func (s *Service) RegisterRoutes(g *gin.RouterGroup) {
 	gg := g.Group("/generations")
 	gg.GET("/", s.handleGetAllGenerations)
-	gg.POST("/:name", s.handleCreateGeneration)
-	gg.PATCH("/:id", s.handleUpdateGeneration)
-	gg.DELETE("/:name", s.handleDeleteGenerationByName)
+	gg.POST("/", s.handleCreateGeneration)
+	gg.PATCH("/:gid", s.handleUpdateGeneration)
+	gg.DELETE("/:gid", s.handleDeleteGenerationByID)
 }
 
 func (s *Service) handleGetAllGenerations(c *gin.Context) {
@@ -34,7 +34,6 @@ func (s *Service) handleGetAllGenerations(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// model/SQL should handle duplicates
 func (s *Service) handleCreateGeneration(c *gin.Context) {
 	defer c.Request.Body.Close()
 	data, err := ioutil.ReadAll(c.Request.Body)
@@ -44,8 +43,7 @@ func (s *Service) handleCreateGeneration(c *gin.Context) {
 	}
 
 	generation := &generation.Generation{}
-	err = json.Unmarshal(data, generation)
-	if err != nil {
+	if err := json.Unmarshal(data, generation); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
@@ -60,7 +58,7 @@ func (s *Service) handleCreateGeneration(c *gin.Context) {
 }
 
 func (s *Service) handleUpdateGeneration(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Param("gid")
 	generation, err := s.model.FindByID(id)
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
@@ -79,7 +77,7 @@ func (s *Service) handleUpdateGeneration(c *gin.Context) {
 		return
 	}
 	generation.Id = id
-	result, err := s.model.UpdateByID(generation)
+	result, err := s.model.Update(generation)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -88,9 +86,9 @@ func (s *Service) handleUpdateGeneration(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-func (s *Service) handleDeleteGenerationByName(c *gin.Context) {
-	name := c.Param("name")
-	err := s.model.DeleteByName(name)
+func (s *Service) handleDeleteGenerationByID(c *gin.Context) {
+	id := c.Param("gid")
+	err := s.model.DeleteByID(id)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return

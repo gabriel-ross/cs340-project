@@ -6,13 +6,9 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/gabriel-ross/cs340-project/server/service/database/model/pokemon"
+	"github.com/gabriel-ross/cs340-project/server/storage/model/pokemon"
 	"github.com/gin-gonic/gin"
 )
-
-// todo: modify routes to take in name of type & generation
-// todo: modify model to insert FK using subqueries
-// maybe?
 
 type Service struct {
 	model pokemon.Model
@@ -25,10 +21,10 @@ func NewService(model pokemon.Model) *Service {
 func (s *Service) RegisterRoutes(g *gin.RouterGroup) {
 	pg := g.Group("/pokemon")
 
-	pg.GET("/", s.handleGetAllPokemon)
+	pg.GET("/", s.handleGetManyPokemon)
 	pg.GET("/:pkid", s.handleGetPokemon)
 	pg.POST("/:pkid", s.handleCreatePokemon)
-	pg.PATCH("/:pkid", s.handleUpdatePokemonByID)
+	pg.PATCH("/:pkid", s.handleUpdatePokemon)
 	pg.DELETE("/:pkid", s.handleDeletePokemonByID)
 
 	pg.GET("/:pkid/moves", s.handleGetPokemonAllMoves)
@@ -36,14 +32,41 @@ func (s *Service) RegisterRoutes(g *gin.RouterGroup) {
 	pg.DELETE("/:pkid/moves/:mvid", s.handlePokemonDeleteMove)
 }
 
-// todo: implement filtering by queries in this path
-func (s *Service) handleGetAllPokemon(c *gin.Context) {
-	result, err := s.model.FindAll()
-	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
-		return
+// !: filter not working (500 err)
+// todo: get filter working on Pokemon and Moves
+
+// filter params will just be string names for now since that's much easier, though
+// it isn't consistent with the rest of the project.
+func (s *Service) handleGetManyPokemon(c *gin.Context) {
+	if ok, filterBy := s.buildFilter([]string{"name", "type", "generation"}, c); ok {
+		result, err := s.model.Find(filterBy)
+		if err != nil {
+			c.JSON(http.StatusAccepted, err.Error())
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+		c.JSON(http.StatusOK, result)
+	} else {
+		result, err := s.model.FindAll()
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+		c.JSON(http.StatusOK, result)
 	}
-	c.JSON(http.StatusOK, result)
+}
+
+func (s *Service) buildFilter(params []string, c *gin.Context) (bool, map[string]string) {
+	filterParamsPresent := false
+	filters := map[string]string{}
+	for _, param := range params {
+		val := c.Query(param)
+		if val != "" {
+			filterParamsPresent = true
+			filters[param] = val
+		}
+	}
+	return filterParamsPresent, filters
 }
 
 func (s *Service) handleGetPokemon(c *gin.Context) {
@@ -65,7 +88,6 @@ func (s *Service) handleCreatePokemon(c *gin.Context) {
 	}
 
 	pk := &pokemon.Pokemon{}
-
 	if err := json.Unmarshal(data, pk); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
@@ -78,7 +100,7 @@ func (s *Service) handleCreatePokemon(c *gin.Context) {
 
 	result, err := s.model.Insert(pk)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusAccepted, err.Error())
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
@@ -86,8 +108,8 @@ func (s *Service) handleCreatePokemon(c *gin.Context) {
 	c.JSON(http.StatusCreated, result)
 }
 
-func (s *Service) handleUpdatePokemonByID(c *gin.Context) {
-	id := c.Param("id")
+func (s *Service) handleUpdatePokemon(c *gin.Context) {
+	id := c.Param("pkid")
 	pokemon, err := s.model.FindByID(id)
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
@@ -106,14 +128,9 @@ func (s *Service) handleUpdatePokemonByID(c *gin.Context) {
 		return
 	}
 
-	if pokemon.Id != c.Param("pkid") {
-		c.AbortWithError(http.StatusBadRequest, errors.New(`url parameter "id" and body "id" do not match`))
-		return
-	}
-
-	// prevent updating id via patch - must delete and post
 	pokemon.Id = id
-	result, err := s.model.UpdateByID(pokemon)
+
+	result, err := s.model.Update(pokemon)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -122,10 +139,8 @@ func (s *Service) handleUpdatePokemonByID(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// TODO: implement PATCH handler for updating by name so we can alter id if need be
-
 func (s *Service) handleDeletePokemonByID(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Param("pkid")
 	err := s.model.DeleteByID(id)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
