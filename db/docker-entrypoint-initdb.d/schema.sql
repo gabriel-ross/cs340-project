@@ -78,3 +78,16 @@ INSERT INTO `Generations` (`name`) VALUES
 ('VI'),
 ('VII'),
 ('VIII');
+
+INSERT INTO `Pokemon` (`id`, `name`, `primary_type`, `secondary_type`, `generation`) VALUES
+(1, 'Bulbasaur', (SELECT `id` FROM `Types` WHERE `name`='Grass'), (SELECT `id` FROM `Types` WHERE `name`='Poison'), (SELECT `id` FROM `Generations` WHERE `name`='I'));
+
+INSERT INTO `Pokemon` (`id`, `name`, `primary_type`, `generation`) VALUES
+(4, 'Charmander', (SELECT `id` FROM `Types` WHERE `name`='Fire'), (SELECT `id` FROM `Generations` WHERE `name`='I')),
+(7, 'Squirtle', (SELECT `id` FROM `Types` WHERE `name`='Water'), (SELECT `id` FROM `Generations` WHERE `name`='I'));
+
+
+INSERT INTO `Moves` (`name`, `type`) VALUES
+('Tackle', (SELECT `id` FROM `Types` WHERE `name`='Normal')),
+('Water Gun', (SELECT `id` FROM `Types` WHERE `name`='Water'));
+
