@@ -32,16 +32,12 @@ func (s *Service) RegisterRoutes(g *gin.RouterGroup) {
 	pg.DELETE("/:pkid/moves/:mvid", s.handlePokemonDeleteMove)
 }
 
-// !: filter not working (500 err)
-// todo: get filter working on Pokemon and Moves
-
 // filter params will just be string names for now since that's much easier, though
 // it isn't consistent with the rest of the project.
 func (s *Service) handleGetManyPokemon(c *gin.Context) {
 	if ok, filterBy := s.buildFilter([]string{"name", "type", "generation"}, c); ok {
 		result, err := s.model.Find(filterBy)
 		if err != nil {
-			c.JSON(http.StatusAccepted, err.Error())
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}

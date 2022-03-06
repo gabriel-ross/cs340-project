@@ -25,8 +25,6 @@ func NewModel(db *sql.DB) *Model {
 	return &Model{db: db}
 }
 
-// !: the sql response scanning is dependent on the order of the columns returned
-
 // !: the secType code is repeated several times and will be required every time
 // !: a pokemon get is unmarshaled.
 
@@ -35,7 +33,10 @@ func NewModel(db *sql.DB) *Model {
 // FindAll queries all entries in Model.DB and returns
 // a slice of Pokemon
 func (m Model) FindAll() ([]Pokemon, error) {
-	sqlQuery := "SELECT * FROM Pokemon"
+	sqlQuery := `SELECT Pokemon.id, Pokemon.name, t1.name AS primary_type, t2.name AS secondary_type, Generations.name FROM Pokemon
+	JOIN Types AS t1 ON Pokemon.primary_type=t1.id
+	LEFT JOIN Types AS t2 ON Pokemon.secondary_type=t2.id
+	JOIN Generations ON Pokemon.generation=Generations.id`
 	resp, err := m.db.Query(sqlQuery)
 	if err != nil {
 		return nil, err
@@ -71,7 +72,11 @@ func (m Model) FindAll() ([]Pokemon, error) {
 
 // FindByID queries Model.DB for an ID and returns a Pokemon
 func (m Model) FindByID(id string) (*Pokemon, error) {
-	sqlQuery := "SELECT * FROM Pokemon WHERE id=?"
+	sqlQuery := `SELECT Pokemon.id, Pokemon.name, t1.name AS primary_type, t2.name AS secondary_type, Generations.name FROM Pokemon
+	JOIN Types AS t1 ON Pokemon.primary_type=t1.id
+	LEFT JOIN Types AS t2 ON Pokemon.secondary_type=t2.id
+	JOIN Generations ON Pokemon.generation=Generations.id
+	WHERE Pokemon.id=?`
 	resp := m.db.QueryRow(sqlQuery, id)
 
 	var respPokemon Pokemon
@@ -96,12 +101,12 @@ func (m Model) FindByID(id string) (*Pokemon, error) {
 func (m Model) Find(filters map[string]string) ([]Pokemon, error) {
 
 	var sqlQuery strings.Builder
-	sqlQuery.WriteString("SELECT Pokemon.id, Pokemon.name, Pokemon.primary_type, Pokemon.secondary_type, Pokemon.Generation FROM Pokemon ")
+	sqlQuery.WriteString(`SELECT Pokemon.id, Pokemon.name, t1.name AS primary_type, t2.name AS secondary_type, Generations.name FROM Pokemon
+	JOIN Types AS t1 ON Pokemon.primary_type=t1.id
+	LEFT JOIN Types AS t2 ON Pokemon.secondary_type=t2.id
+	JOIN Generations ON Pokemon.generation=Generations.id `)
 
 	count := len(filters)
-
-	// build join
-	var joins strings.Builder
 
 	// build where
 	var where strings.Builder
@@ -110,13 +115,8 @@ func (m Model) Find(filters map[string]string) ([]Pokemon, error) {
 	for key, val := range filters {
 		switch key {
 		case "type":
-			fmt.Fprint(&joins, "JOIN Types AS t1 ON Pokemon.primary_type=t1.id ")
-			fmt.Fprint(&joins, "JOIN Types AS t2 ON Pokemon.primary_type=t2.id ")
-
 			fmt.Fprintf(&where, "t1.name='%s' OR t2.name='%s' ", val, val)
 		case "generation":
-			fmt.Fprint(&joins, "JOIN Generations Pokemon.generation=Generations.id ")
-
 			fmt.Fprintf(&where, "Generations.name='%s' ", val)
 		}
 		if count--; count > 0 {
@@ -124,7 +124,6 @@ func (m Model) Find(filters map[string]string) ([]Pokemon, error) {
 		}
 	}
 
-	sqlQuery.WriteString(joins.String())
 	sqlQuery.WriteString(where.String())
 
 	resp, err := m.db.Query(sqlQuery.String())
@@ -161,7 +160,7 @@ func (m Model) Find(filters map[string]string) ([]Pokemon, error) {
 }
 
 func (m Model) Insert(pk *Pokemon) (sql.Result, error) {
-	sqlQuery := "INSERT INTO Pokemon Values(?, ?, ?, ?, ?)"
+	sqlQuery := "INSERT INTO Pokemon Values(?, ?, (SELECT id FROM Types WHERE name=?), (SELECT id FROM Types WHERE name=?), (SELECT id FROM Generations WHERE name=?))"
 	result, err := m.db.Exec(sqlQuery, pk.Id, pk.Name, pk.PrimaryType, m.wrapPossibleNull(pk.SecondaryType), pk.Generation)
 	return result, err
 }
@@ -174,7 +173,7 @@ func (m Model) wrapPossibleNull(val string) *sql.NullString {
 }
 
 func (m Model) Update(pk *Pokemon) (sql.Result, error) {
-	sqlQuery := "UPDATE Pokemon SET name=?, primary_type=?, secondary_type=?, generation=? WHERE id=?"
+	sqlQuery := "UPDATE Pokemon SET name=?, primary_type=(SELECT id FROM Types WHERE name=?), secondary_type=(SELECT id FROM Types WHERE name=?), generation=(SELECT id FROM Generations WHERE name=?) WHERE id=?"
 	result, err := m.db.Exec(sqlQuery, pk.Name, pk.PrimaryType, pk.SecondaryType, pk.Generation, pk.Id)
 	return result, err
 }

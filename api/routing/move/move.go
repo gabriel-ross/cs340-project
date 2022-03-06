@@ -19,21 +19,41 @@ func NewService(model move.Model) *Service {
 
 func (s *Service) RegisterRoutes(g *gin.RouterGroup) {
 	mg := g.Group("/moves")
-	mg.GET("/", s.handleGetAllMoves)
+	mg.GET("/", s.handleGetManyMoves)
 	mg.POST("/", s.handleCreateMove)
 	mg.PATCH("/:mvid", s.handleUpdateMove)
 	mg.DELETE("/:mvid", s.handleDeleteMoveByID)
 }
 
-// todo: implement filtering
-
-func (s *Service) handleGetAllMoves(c *gin.Context) {
-	result, err := s.model.FindAll()
-	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
-		return
+func (s *Service) handleGetManyMoves(c *gin.Context) {
+	if ok, filterBy := s.buildFilter([]string{"type"}, c); ok {
+		result, err := s.model.Find(filterBy)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+		c.JSON(http.StatusOK, result)
+	} else {
+		result, err := s.model.FindAll()
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+		c.JSON(http.StatusOK, result)
 	}
-	c.JSON(http.StatusOK, result)
+}
+
+func (s *Service) buildFilter(params []string, c *gin.Context) (bool, map[string]string) {
+	filterParamsPresent := false
+	filters := map[string]string{}
+	for _, param := range params {
+		val := c.Query(param)
+		if val != "" {
+			filterParamsPresent = true
+			filters[param] = val
+		}
+	}
+	return filterParamsPresent, filters
 }
 
 func (s *Service) handleCreateMove(c *gin.Context) {
