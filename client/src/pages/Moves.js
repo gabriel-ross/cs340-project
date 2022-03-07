@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import NavBar from "../components/Navbar";
 import AddMovesForm from "../components/AddMoves";
 import {
@@ -8,8 +9,20 @@ import {
   Button,
   UncontrolledCollapse,
 } from "reactstrap";
+import axios from "axios";
 
 function Moves() {
+  const [moves, setMoves] = useState(null);
+  const [types, setTypes] = useState(null);
+
+  useEffect(() => {
+    axios.get("/moves").then((response) => {
+      setMoves(response.data);
+    });
+    axios.get("/types").then((response) => {
+      setTypes(response.data);
+    });
+  }, []);
   return (
     <div className="App">
       <NavBar />
@@ -22,7 +35,7 @@ function Moves() {
         </h1>
         <div>
           <UncontrolledCollapse toggler="#toggler">
-            <AddMovesForm />
+            <AddMovesForm types={types} />
           </UncontrolledCollapse>
         </div>
         <Row>
@@ -37,21 +50,25 @@ function Moves() {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <th scope="row">1</th>
-                  <td>Growl</td>
-                  <td>Normal</td>
-                  <td>
-                    <div>
-                      <Button color="primary" outline size="sm">
-                        Edit
-                      </Button>{" "}
-                      <Button color="primary" outline size="sm">
-                        Delete
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
+                {moves &&
+                  moves.map((move, id) => (
+                    <tr key={id}>
+                      <th scope="row">{move.id}</th>
+                      <td>{move.name}</td>
+                      <td>{move.type}</td>
+                      <td>
+                        <div>
+                          <Button color="primary" outline size="sm">
+                            Edit
+                          </Button>{" "}
+                          <Button color="primary" outline size="sm">
+                            Delete
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+
                 <tr>
                   <th scope="row">2</th>
                   <td>Poison Powder</td>

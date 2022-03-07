@@ -10,7 +10,7 @@ import {
   Label,
 } from "reactstrap";
 
-function AddPokemonMoves() {
+function AddPokemonMoves({pokemon, moves}) {
   return (
     <Card color="light">
       <CardBody>
@@ -22,12 +22,11 @@ function AddPokemonMoves() {
                 Pokémon Name
               </Label>
               <Col sm={10}>
-                <Input
-                  id="name"
-                  name="pokemonName"
-                  placeholder="Pokemon Name"
-                  type="text"
-                />
+                <Input id="pokemon" name="pokemon" type="select">
+                  {pokemon && pokemon.map((poke, id) => (
+                    <option value={poke.name} key={id}>{poke.name}</option>
+                  ))}
+                  </Input>
               </Col>
             </FormGroup>
             <FormGroup row>
@@ -35,12 +34,11 @@ function AddPokemonMoves() {
                 Move Name
               </Label>
               <Col sm={10}>
-                <Input
-                  id="name"
-                  name="moveName"
-                  placeholder="Move Name"
-                  type="text"
-                />
+                 <Input id="move" name="move" type="select">
+                  {moves && moves.map((move, id) => (
+                    <option value={move.name} key={id}>{move.name}</option>
+                  ))}
+                  </Input>
               </Col>
             </FormGroup>
           </Form>

@@ -1,4 +1,4 @@
-import  {useState } from "react";
+import  {useState, useEffect } from "react";
 import NavBar from "../components/Navbar";
 import AddPokemonMovesForm from "../components/AddPokemonMoves";
 import {
@@ -14,12 +14,25 @@ import {
 import {
   useSearchParams
 } from "react-router-dom";
+import axios from "axios";
 
 function PokemonMoves() {
   let [searchParams, setSearchParams] = useSearchParams();
   let [query, setQuery] = useState(
     searchParams.get("query")
   );
+
+  const [moves, setMoves] = useState(null);
+  const [pokemon, setPokemon] = useState(null);
+
+  useEffect(() => {
+    axios.get("/moves").then((response) => {
+      setMoves(response.data);
+    });
+    axios.get("/pokemon").then((response) => {
+      setPokemon(response.data);
+    });
+  }, []);
 
   return (
     <div className="App">
@@ -33,7 +46,7 @@ function PokemonMoves() {
         </h1>
         <div>
           <UncontrolledCollapse toggler="#toggler">
-            <AddPokemonMovesForm />
+            <AddPokemonMovesForm moves={moves} pokemon={pokemon}/>
           </UncontrolledCollapse>
         </div>
         <Row>

@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import NavBar from "../components/Navbar";
 import AddGenerationsForm from "../components/AddGenerations";
 import {
@@ -8,8 +9,17 @@ import {
   Button,
   UncontrolledCollapse,
 } from "reactstrap";
+import axios from "axios";
 
 function Generations() {
+  const [generations, setGenerations] = useState(null);
+
+  useEffect(() => {
+    axios.get("/generations").then((response) => {
+      setGenerations(response.data);
+    });
+  }, []);
+
   return (
     <div className="App">
       <NavBar />
@@ -36,48 +46,26 @@ function Generations() {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <th scope="row">1</th>
-                  <td>I</td>
-                  <td>
-                    <div>
-                      <Button color="primary" outline size="sm">
-                        Edit
-                      </Button>{" "}
-                      <Button color="primary" outline size="sm">
-                        Delete
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">2</th>
-                  <td>II</td>
-                  <td>
-                    <div>
-                      <Button color="primary" outline size="sm">
-                        Edit
-                      </Button>{" "}
-                      <Button color="primary" outline size="sm">
-                        Delete
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">3</th>
-                  <td>III</td>
-                  <td>
-                    <div>
-                      <Button color="primary" outline size="sm">
-                        Edit
-                      </Button>{" "}
-                      <Button color="primary" outline size="sm">
-                        Delete
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
+                {generations &&
+                  generations.map((generation, id) => (
+                    <tr key={id}>
+                      <th scope="row">{generation.id}</th>
+                      <td>{generation.name}</td>
+                      <td>
+                        <div>
+                          <Button color="primary" outline size="sm">
+                            Edit
+                          </Button>{" "}
+                          <Button color="primary" outline size="sm">
+                            Delete
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+               
+               
+             
               </tbody>
             </Table>
           </Col>

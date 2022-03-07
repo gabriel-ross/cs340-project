@@ -10,7 +10,7 @@ import {
   Label,
 } from "reactstrap";
 
-function AddPokemon() {
+function AddPokemon({ types, generations }) {
   return (
     <Card color="light">
       <CardBody>
@@ -36,24 +36,9 @@ function AddPokemon() {
               </Label>
               <Col sm={10}>
                 <Input id="primaryType" name="primaryType" type="select">
-                  <option>Normal</option>
-                  <option>Fighting</option>
-                  <option>Flying</option>
-                  <option>Poison</option>
-                  <option>Ground</option>
-                  <option>Rock</option>
-                  <option>Bug</option>
-                  <option>Ghost</option>
-                  <option>Steel</option>
-                  <option>Fire</option>
-                  <option>Water</option>
-                  <option>Grass</option>
-                  <option>Electric</option>
-                  <option>Psychic</option>
-                  <option>Ice</option>
-                  <option>Dragon</option>
-                  <option>Dark</option>
-                  <option>Fairy</option>
+                  {types && types.map((type, id) => (
+                    <option value={type.name} key={id}>{type.name}</option>
+                  ))}
                 </Input>
               </Col>
             </FormGroup>
@@ -63,25 +48,10 @@ function AddPokemon() {
               </Label>
               <Col sm={10}>
                 <Input id="secondaryType" name="secondaryType" type="select">
-                  <option>None</option>
-                  <option>Normal</option>
-                  <option>Fighting</option>
-                  <option>Flying</option>
-                  <option>Poison</option>
-                  <option>Ground</option>
-                  <option>Rock</option>
-                  <option>Bug</option>
-                  <option>Ghost</option>
-                  <option>Steel</option>
-                  <option>Fire</option>
-                  <option>Water</option>
-                  <option>Grass</option>
-                  <option>Electric</option>
-                  <option>Psychic</option>
-                  <option>Ice</option>
-                  <option>Dragon</option>
-                  <option>Dark</option>
-                  <option>Fairy</option>
+                  <option value="None">None</option>
+                  {types && types.map((type, id) => (
+                    <option value={type.name} key={id}>{type.name}</option>
+                  ))}
                 </Input>
               </Col>
             </FormGroup>
@@ -91,14 +61,9 @@ function AddPokemon() {
               </Label>
               <Col sm={10}>
                 <Input id="generation" name="generation" type="select">
-                  <option>I</option>
-                  <option>II</option>
-                  <option>III</option>
-                  <option>IV</option>
-                  <option>V</option>
-                  <option>VI</option>
-                  <option>VII</option>
-                  <option>VIII</option>
+                  {generations && generations.map((generation, id) => (
+                    <option value={generation.name} key={id}>{generation.name}</option>
+                  ))}
                 </Input>
               </Col>
             </FormGroup>

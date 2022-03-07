@@ -10,7 +10,7 @@ import {
   Label,
 } from "reactstrap";
 
-function AddTypes() {
+function AddTypes({types}) {
   return (
     <Card color="light">
       <CardBody>
@@ -35,25 +35,10 @@ function AddTypes() {
                 Move Type
               </Label>
               <Col sm={10}>
-                <Input id="moveType" name="moveType" type="select">
-                  <option>Normal</option>
-                  <option>Fighting</option>
-                  <option>Flying</option>
-                  <option>Poison</option>
-                  <option>Ground</option>
-                  <option>Rock</option>
-                  <option>Bug</option>
-                  <option>Ghost</option>
-                  <option>Steel</option>
-                  <option>Fire</option>
-                  <option>Water</option>
-                  <option>Grass</option>
-                  <option>Electric</option>
-                  <option>Psychic</option>
-                  <option>Ice</option>
-                  <option>Dragon</option>
-                  <option>Dark</option>
-                  <option>Fairy</option>
+                  <Input id="moveType" name="moveType" type="select">
+                  {types && types.map((type, id) => (
+                    <option value={type.name} key={id}>{type.name}</option>
+                  ))}
                 </Input>
               </Col>
             </FormGroup>
