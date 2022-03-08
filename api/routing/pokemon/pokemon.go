@@ -27,6 +27,7 @@ func (s *Service) RegisterRoutes(g *gin.RouterGroup) {
 	pg.PATCH("/:pkid", s.handleUpdatePokemon)
 	pg.DELETE("/:pkid", s.handleDeletePokemonByID)
 
+	pg.GET("/moves", s.handleGetAllPokemonMoves)
 	pg.GET("/:pkid/moves", s.handleGetPokemonAllMoves)
 	pg.POST("/:pkid/moves/:mvid", s.handlePokemonCreateMove)
 	pg.DELETE("/:pkid/moves/:mvid", s.handlePokemonDeleteMove)
@@ -143,6 +144,15 @@ func (s *Service) handleDeletePokemonByID(c *gin.Context) {
 		return
 	}
 	c.Status(http.StatusNoContent)
+}
+
+func (s *Service) handleGetAllPokemonMoves(c *gin.Context) {
+	result, err := s.model.FindAllPokemonMoves()
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	c.JSON(http.StatusOK, result)
 }
 
 func (s *Service) handleGetPokemonAllMoves(c *gin.Context) {

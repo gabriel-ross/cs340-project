@@ -17,6 +17,11 @@ type Pokemon struct {
 	Generation    string `json:"generation"`
 }
 
+type PokemonMove struct {
+	PkID string `json:"pokemon_id"`
+	MvID string `json:"move_id"`
+}
+
 type Model struct {
 	db *sql.DB
 }
@@ -182,6 +187,32 @@ func (m Model) DeleteByID(id string) error {
 	sqlQuery := "DELETE FROM Pokemon WHERE id=?"
 	_, err := m.db.Exec(sqlQuery, id)
 	return err
+}
+
+func (m Model) FindAllPokemonMoves() ([]PokemonMove, error) {
+	sqlQuery := `SELECT pokemon_id, move_id FROM Pokemon_Moves`
+	resp, err := m.db.Query(sqlQuery)
+	if err != nil {
+		return nil, err
+	}
+	result := []PokemonMove{}
+
+	for resp.Next() {
+		var pkmv PokemonMove
+		err := resp.Scan(
+			&pkmv.PkID,
+			&pkmv.MvID,
+		)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, pkmv)
+	}
+	if err = resp.Err(); err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func (m Model) FindAllMovesByPokemonID(id string) ([]move.Move, error) {
