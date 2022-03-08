@@ -68,37 +68,6 @@ function Moves() {
                       </td>
                     </tr>
                   ))}
-
-                <tr>
-                  <th scope="row">2</th>
-                  <td>Poison Powder</td>
-                  <td>Poison</td>
-                  <td>
-                    <div>
-                      <Button color="primary" outline size="sm">
-                        Edit
-                      </Button>{" "}
-                      <Button color="primary" outline size="sm">
-                        Delete
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">3</th>
-                  <td>Sleep Powder</td>
-                  <td>Grass</td>
-                  <td>
-                    <div>
-                      <Button color="primary" outline size="sm">
-                        Edit
-                      </Button>{" "}
-                      <Button color="primary" outline size="sm">
-                        Delete
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
               </tbody>
             </Table>
           </Col>

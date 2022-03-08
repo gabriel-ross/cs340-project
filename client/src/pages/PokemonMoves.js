@@ -24,8 +24,12 @@ function PokemonMoves() {
 
   const [moves, setMoves] = useState(null);
   const [pokemon, setPokemon] = useState(null);
+  const [pokeMoves, setpokeMoves] = useState(null);
 
   useEffect(() => {
+    axios.get("/pokemon/moves").then((response) => {
+      setpokeMoves(response.data);
+    });
     axios.get("/moves").then((response) => {
       setMoves(response.data);
     });
@@ -33,6 +37,8 @@ function PokemonMoves() {
       setPokemon(response.data);
     });
   }, []);
+
+  console.log(pokeMoves)
 
   return (
     <div className="App">
@@ -73,17 +79,17 @@ function PokemonMoves() {
             <Table className="mt-3" hover responsive>
               <thead>
                 <tr>
-                  <th>ID #</th>
                   <th>Pokémon</th>
                   <th>Move</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <th scope="row">1</th>
-                  <td>Bulbasaur</td>
-                  <td>Growl</td>
+                {pokeMoves &&
+                  pokeMoves.map((pokeMove, id) => (
+                    <tr key={id}>
+                  <td>{pokeMove.PkID}</td>
+                  <td>{pokeMove.MvID}</td>
                   <td>
                     <div>
                       <Button color="primary" outline size="sm">
@@ -95,36 +101,7 @@ function PokemonMoves() {
                     </div>
                   </td>
                 </tr>
-                <tr>
-                  <th scope="row">2</th>
-                  <td>Ivysaur</td>
-                  <td>Poison Powder</td>
-                  <td>
-                    <div>
-                      <Button color="primary" outline size="sm">
-                        Edit
-                      </Button>{" "}
-                      <Button color="primary" outline size="sm">
-                        Delete
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">3</th>
-                  <td>Venusaur</td>
-                  <td>Sleep Powder</td>
-                  <td>
-                    <div>
-                      <Button color="primary" outline size="sm">
-                        Edit
-                      </Button>{" "}
-                      <Button color="primary" outline size="sm">
-                        Delete
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
+                  ))}
               </tbody>
             </Table>
           </Col>
