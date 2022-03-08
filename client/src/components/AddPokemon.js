@@ -1,3 +1,5 @@
+import { useState } from "react";
+import axios from "axios";
 import {
   Col,
   Button,
@@ -11,12 +13,41 @@ import {
 } from "reactstrap";
 
 function AddPokemon({ types, generations }) {
+  const [data, setData] = useState({
+    name: "",
+    primaryType: "Bug",
+    secondaryType: "None",
+    generation: "I"
+  });
+
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setData({
+      ...data,
+      [e.target.name]: value,
+    });
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const requestData = {
+      name: data.name,
+      primaryType: data.primaryType,
+      secondaryType: data.secondaryType === "None" ? "" : data.secondaryType,
+      generation: data.generation,
+    };
+    await axios.post("/pokemon", requestData).then((response) => {
+      console.log(response);
+      window.location.reload();
+    });
+  };
+
   return (
     <Card color="light">
       <CardBody>
         <CardTitle tag="h5">Add Pokémon</CardTitle>
         <CardBody>
-          <Form>
+          <Form onSubmit={handleSubmit}>
             <FormGroup row>
               <Label for="name" sm={2}>
                 Name
@@ -27,6 +58,8 @@ function AddPokemon({ types, generations }) {
                   name="name"
                   placeholder="Pokémon Name"
                   type="text"
+                  value={data.name}
+                  onChange={handleChange}
                 />
               </Col>
             </FormGroup>
@@ -35,7 +68,8 @@ function AddPokemon({ types, generations }) {
                 Primary Type
               </Label>
               <Col sm={10}>
-                <Input id="primaryType" name="primaryType" type="select">
+                <Input id="primaryType" name="primaryType" type="select" value={data.primaryType}
+                  onChange={handleChange}>
                   {types && types.map((type, id) => (
                     <option value={type.name} key={id}>{type.name}</option>
                   ))}
@@ -47,7 +81,8 @@ function AddPokemon({ types, generations }) {
                 Secondary Type
               </Label>
               <Col sm={10}>
-                <Input id="secondaryType" name="secondaryType" type="select">
+                <Input id="secondaryType" name="secondaryType" type="select" value={data.secondaryType}
+                  onChange={handleChange}>
                   <option value="None">None</option>
                   {types && types.map((type, id) => (
                     <option value={type.name} key={id}>{type.name}</option>
@@ -60,16 +95,17 @@ function AddPokemon({ types, generations }) {
                 Generation
               </Label>
               <Col sm={10}>
-                <Input id="generation" name="generation" type="select">
+                <Input id="generation" name="generation" type="select" value={data.generation}
+                  onChange={handleChange}>
                   {generations && generations.map((generation, id) => (
                     <option value={generation.name} key={id}>{generation.name}</option>
                   ))}
                 </Input>
               </Col>
             </FormGroup>
+            <Button>Submit</Button>
           </Form>
         </CardBody>
-        <Button>Submit</Button>
       </CardBody>
     </Card>
   );
