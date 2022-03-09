@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import NavBar from "../components/Navbar";
 import AddTypesForm from "../components/AddTypes";
+import DeleteButton from "../components/DeleteButton";
 import {
   Container,
   Row,
@@ -55,9 +56,7 @@ function Types() {
                           <Button color="primary" outline size="sm">
                             Edit
                           </Button>{" "}
-                          <Button color="primary" outline size="sm">
-                            Delete
-                          </Button>
+                          <DeleteButton route={`/types/${type.id}`} />
                         </div>
                       </td>
                     </tr>

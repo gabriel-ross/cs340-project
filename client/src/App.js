@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import NavBar from "./components/Navbar";
 import AddPokemonForm from "./components/AddPokemon";
+import DeleteButton from "./components/DeleteButton";
 import {
   Container,
   Row,
@@ -76,9 +77,7 @@ function App() {
                           <Button color="primary" outline size="sm">
                             Edit
                           </Button>{" "}
-                          <Button color="primary" outline size="sm">
-                            Delete
-                          </Button>
+                          <DeleteButton route={`/pokemon/${poke.id}`}/>
                         </div>
                       </td>
                     </tr>
