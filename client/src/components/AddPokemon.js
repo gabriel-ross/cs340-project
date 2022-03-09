@@ -9,11 +9,13 @@ import {
   CardBody,
   CardTitle,
   FormGroup,
+  FormText,
   Label,
 } from "reactstrap";
 
 function AddPokemon({ types, generations }) {
   const [data, setData] = useState({
+    id: "",
     name: "",
     primaryType: "Bug",
     secondaryType: "None",
@@ -31,12 +33,13 @@ function AddPokemon({ types, generations }) {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const requestData = {
+      id: data.id,
       name: data.name,
       primaryType: data.primaryType,
       secondaryType: data.secondaryType === "None" ? "" : data.secondaryType,
       generation: data.generation,
     };
-    await axios.post("/pokemon", requestData).then((response) => {
+    await axios.post(`/pokemon/${data.id}`, requestData).then((response) => {
       console.log(response);
       window.location.reload();
     });
@@ -48,6 +51,24 @@ function AddPokemon({ types, generations }) {
         <CardTitle tag="h5">Add Pokémon</CardTitle>
         <CardBody>
           <Form onSubmit={handleSubmit}>
+            <FormGroup row>
+              <Label for="name" sm={2}>
+                PokeDex #
+              </Label>
+              <Col sm={10}>
+                <Input
+                  id="id"
+                  name="id"
+                  placeholder="PokéDex Number"
+                  type="number"
+                  value={data.id}
+                  onChange={handleChange}
+                />
+                <FormText>
+      We recommend adding a Pokémon by its <a href="https://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_National_Pok%C3%A9dex_number">correct Pokedex id</a>. 
+    </FormText>
+              </Col>
+            </FormGroup>
             <FormGroup row>
               <Label for="name" sm={2}>
                 Name

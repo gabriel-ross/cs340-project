@@ -32,7 +32,7 @@ function AddPokemonMoves({pokemon, moves}) {
       pkid: data.pokemon,
       mvid: data.move
     };
-    await axios.post("/pokemon/moves", requestData).then((response) => {
+    await axios.post(`/pokemon/${data.pokemon}/moves/${data.move}`, requestData).then((response) => {
       console.log(response);
       window.location.reload();
     });

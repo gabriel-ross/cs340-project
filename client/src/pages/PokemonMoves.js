@@ -79,8 +79,8 @@ function PokemonMoves() {
             <Table className="mt-3" hover responsive>
               <thead>
                 <tr>
-                  <th>Pokémon</th>
-                  <th>Move</th>
+                  <th>Pokémon ID</th>
+                  <th>Move ID</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -88,8 +88,8 @@ function PokemonMoves() {
                 {pokeMoves &&
                   pokeMoves.map((pokeMove, id) => (
                     <tr key={id}>
-                  <td>{pokeMove.PkID}</td>
-                  <td>{pokeMove.MvID}</td>
+                  <td>{pokeMove.pokemon_id}</td>
+                  <td>{pokeMove.move_id}</td>
                   <td>
                     <div>
                       <Button color="primary" outline size="sm">
