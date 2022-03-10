@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import NavBar from "../components/Navbar";
 import DeleteButton from "../components/DeleteButton";
+import EditButton from "../components/EditGenerations";
 import AddGenerationsForm from "../components/AddGenerations";
 import {
   Container,
@@ -54,9 +55,10 @@ function Generations() {
                       <td>{generation.name}</td>
                       <td>
                         <div>
-                          <Button color="primary" outline size="sm">
-                            Edit
-                          </Button>{" "}
+                          <EditButton
+                            id={generation.id}
+                            name={generation.name}
+                          />{" "}
                           <DeleteButton
                             route={`/generations/${generation.id}`}
                           />

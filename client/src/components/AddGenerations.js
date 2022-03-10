@@ -31,7 +31,7 @@ function AddGenerations() {
       name: data.name,
     };
     await axios.post("/generations", requestData).then((response) => {
-      window.location.reload()
+      window.location.reload();
     });
   };
   return (
@@ -58,7 +58,6 @@ function AddGenerations() {
             <Button>Submit</Button>
           </Form>
         </CardBody>
-
       </CardBody>
     </Card>
   );
