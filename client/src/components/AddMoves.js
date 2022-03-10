@@ -1,3 +1,5 @@
+import { useState } from "react";
+import axios from "axios";
 import {
   Col,
   Button,
@@ -10,13 +12,37 @@ import {
   Label,
 } from "reactstrap";
 
-function AddTypes() {
+function AddMoves({ types }) {
+  const [data, setData] = useState({
+    name: "",
+    type: "Bug",
+  });
+
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setData({
+      ...data,
+      [e.target.name]: value,
+    });
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const requestData = {
+      name: data.name,
+      type: data.type,
+    };
+    await axios.post("/moves", requestData).then((response) => {
+      console.log(response);
+      window.location.reload();
+    });
+  };
   return (
     <Card color="light">
       <CardBody>
         <CardTitle tag="h5">Add Move</CardTitle>
         <CardBody>
-          <Form>
+          <Form onSubmit={handleSubmit}>
             <FormGroup row>
               <Label for="name" sm={2}>
                 Name
@@ -25,44 +51,40 @@ function AddTypes() {
                 <Input
                   id="name"
                   name="name"
-                  placeholder="Type Name"
+                  placeholder="Move Name"
                   type="text"
+                  value={data.name}
+                  onChange={handleChange}
                 />
               </Col>
             </FormGroup>
             <FormGroup row>
-              <Label for="moveType" sm={2}>
+              <Label for="type" sm={2}>
                 Move Type
               </Label>
               <Col sm={10}>
-                <Input id="moveType" name="moveType" type="select">
-                  <option>Normal</option>
-                  <option>Fighting</option>
-                  <option>Flying</option>
-                  <option>Poison</option>
-                  <option>Ground</option>
-                  <option>Rock</option>
-                  <option>Bug</option>
-                  <option>Ghost</option>
-                  <option>Steel</option>
-                  <option>Fire</option>
-                  <option>Water</option>
-                  <option>Grass</option>
-                  <option>Electric</option>
-                  <option>Psychic</option>
-                  <option>Ice</option>
-                  <option>Dragon</option>
-                  <option>Dark</option>
-                  <option>Fairy</option>
+                <Input
+                  id="type"
+                  name="type"
+                  type="select"
+                  value={data.type}
+                  onChange={handleChange}
+                >
+                  {types &&
+                    types.map((type, id) => (
+                      <option value={type.name} key={id}>
+                        {type.name}
+                      </option>
+                    ))}
                 </Input>
               </Col>
             </FormGroup>
+            <Button>Submit</Button>
           </Form>
         </CardBody>
-        <Button>Submit</Button>
       </CardBody>
     </Card>
   );
 }
 
-export default AddTypes;
+export default AddMoves;

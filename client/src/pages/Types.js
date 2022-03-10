@@ -1,5 +1,7 @@
+import { useState, useEffect } from "react";
 import NavBar from "../components/Navbar";
 import AddTypesForm from "../components/AddTypes";
+import DeleteButton from "../components/DeleteButton";
 import {
   Container,
   Row,
@@ -8,8 +10,16 @@ import {
   Button,
   UncontrolledCollapse,
 } from "reactstrap";
+import axios from "axios";
 
 function Types() {
+  const [types, setTypes] = useState(null);
+
+  useEffect(() => {
+    axios.get("/types").then((response) => {
+      setTypes(response.data);
+    });
+  }, []);
   return (
     <div className="App">
       <NavBar />
@@ -36,48 +46,21 @@ function Types() {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <th scope="row">1</th>
-                  <td>Normal</td>
-                  <td>
-                    <div>
-                      <Button color="primary" outline size="sm">
-                        Edit
-                      </Button>{" "}
-                      <Button color="primary" outline size="sm">
-                        Delete
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">2</th>
-                  <td>Grass</td>
-                  <td>
-                    <div>
-                      <Button color="primary" outline size="sm">
-                        Edit
-                      </Button>{" "}
-                      <Button color="primary" outline size="sm">
-                        Delete
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">3</th>
-                  <td>Poison</td>
-                  <td>
-                    <div>
-                      <Button color="primary" outline size="sm">
-                        Edit
-                      </Button>{" "}
-                      <Button color="primary" outline size="sm">
-                        Delete
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
+                {types &&
+                  types.map((type, id) => (
+                    <tr key={id}>
+                      <th scope="row">{type.id}</th>
+                      <td>{type.name}</td>
+                      <td>
+                        <div>
+                          <Button color="primary" outline size="sm">
+                            Edit
+                          </Button>{" "}
+                          <DeleteButton route={`/types/${type.id}`} />
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </Table>
           </Col>

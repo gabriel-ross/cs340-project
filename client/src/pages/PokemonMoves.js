@@ -1,6 +1,7 @@
-import  {useState } from "react";
+import { useState, useEffect } from "react";
 import NavBar from "../components/Navbar";
 import AddPokemonMovesForm from "../components/AddPokemonMoves";
+import DeleteButton from "../components/DeleteButton";
 import {
   Container,
   Row,
@@ -11,15 +12,30 @@ import {
   Input,
   UncontrolledCollapse,
 } from "reactstrap";
-import {
-  useSearchParams
-} from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import axios from "axios";
 
 function PokemonMoves() {
   let [searchParams, setSearchParams] = useSearchParams();
-  let [query, setQuery] = useState(
-    searchParams.get("query")
-  );
+  let [query, setQuery] = useState(searchParams.get("query"));
+
+  const [moves, setMoves] = useState(null);
+  const [pokemon, setPokemon] = useState(null);
+  const [pokeMoves, setpokeMoves] = useState(null);
+
+  useEffect(() => {
+    axios.get("/pokemon/moves").then((response) => {
+      setpokeMoves(response.data);
+    });
+    axios.get("/moves").then((response) => {
+      setMoves(response.data);
+    });
+    axios.get("/pokemon").then((response) => {
+      setPokemon(response.data);
+    });
+  }, []);
+
+  console.log(pokeMoves);
 
   return (
     <div className="App">
@@ -33,12 +49,12 @@ function PokemonMoves() {
         </h1>
         <div>
           <UncontrolledCollapse toggler="#toggler">
-            <AddPokemonMovesForm />
+            <AddPokemonMovesForm moves={moves} pokemon={pokemon} />
           </UncontrolledCollapse>
         </div>
         <Row>
           <Col>
-                      <div className="mt-4">
+            <div className="mt-4">
               <Form>
                 <Row xs="2">
                   <Col>
@@ -60,58 +76,27 @@ function PokemonMoves() {
             <Table className="mt-3" hover responsive>
               <thead>
                 <tr>
-                  <th>ID #</th>
-                  <th>Pokémon</th>
-                  <th>Move</th>
+                  <th>Pokémon ID</th>
+                  <th>Move ID</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <th scope="row">1</th>
-                  <td>Bulbasaur</td>
-                  <td>Growl</td>
-                  <td>
-                    <div>
-                      <Button color="primary" outline size="sm">
-                        Edit
-                      </Button>{" "}
-                      <Button color="primary" outline size="sm">
-                        Delete
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">2</th>
-                  <td>Ivysaur</td>
-                  <td>Poison Powder</td>
-                  <td>
-                    <div>
-                      <Button color="primary" outline size="sm">
-                        Edit
-                      </Button>{" "}
-                      <Button color="primary" outline size="sm">
-                        Delete
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <th scope="row">3</th>
-                  <td>Venusaur</td>
-                  <td>Sleep Powder</td>
-                  <td>
-                    <div>
-                      <Button color="primary" outline size="sm">
-                        Edit
-                      </Button>{" "}
-                      <Button color="primary" outline size="sm">
-                        Delete
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
+                {pokeMoves &&
+                  pokeMoves.map((pokeMove, id) => (
+                    <tr key={id}>
+                      <td>{pokeMove.pokemon_id}</td>
+                      <td>{pokeMove.move_id}</td>
+                      <td>
+                        <div>
+                          <Button color="primary" outline size="sm">
+                            Edit
+                          </Button>{" "}
+                          <DeleteButton route={`/pokemon/${pokeMove.pokemon_id}/moves/${pokeMove.move_id}`}/>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </Table>
           </Col>

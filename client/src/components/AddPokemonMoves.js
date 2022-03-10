@@ -1,3 +1,5 @@
+import { useState } from "react";
+import axios from "axios";
 import {
   Col,
   Button,
@@ -10,24 +12,48 @@ import {
   Label,
 } from "reactstrap";
 
-function AddPokemonMoves() {
+function AddPokemonMoves({pokemon, moves}) {
+  const [data, setData] = useState({
+    pokemon: 1,
+    move: 1
+  });
+
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setData({
+      ...data,
+      [e.target.name]: value,
+    });
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const requestData = {
+      pkid: data.pokemon,
+      mvid: data.move
+    };
+    await axios.post(`/pokemon/${data.pokemon}/moves/${data.move}`, requestData).then((response) => {
+      console.log(response);
+      window.location.reload();
+    });
+  };
   return (
     <Card color="light">
       <CardBody>
         <CardTitle tag="h5">Add Pokémon Moves</CardTitle>
         <CardBody>
-          <Form>
+          <Form onSubmit={handleSubmit}>
             <FormGroup row>
               <Label for="pokemonName" sm={2}>
                 Pokémon Name
               </Label>
               <Col sm={10}>
-                <Input
-                  id="name"
-                  name="pokemonName"
-                  placeholder="Pokemon Name"
-                  type="text"
-                />
+                <Input id="pokemon" name="pokemon" type="select" value={data.pokemon}
+                  onChange={handleChange}>
+                  {pokemon && pokemon.map((poke, id) => (
+                    <option value={poke.id} key={id}>{poke.name}</option>
+                  ))}
+                  </Input>
               </Col>
             </FormGroup>
             <FormGroup row>
@@ -35,17 +61,17 @@ function AddPokemonMoves() {
                 Move Name
               </Label>
               <Col sm={10}>
-                <Input
-                  id="name"
-                  name="moveName"
-                  placeholder="Move Name"
-                  type="text"
-                />
+                 <Input id="move" name="move" type="select" value={data.move}
+                  onChange={handleChange}>
+                  {moves && moves.map((move, id) => (
+                    <option value={move.id} key={id}>{move.name}</option>
+                  ))}
+                  </Input>
               </Col>
             </FormGroup>
+            <Button>Submit</Button>
           </Form>
         </CardBody>
-        <Button>Submit</Button>
       </CardBody>
     </Card>
   );
