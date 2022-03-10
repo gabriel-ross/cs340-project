@@ -19,7 +19,7 @@ function AddPokemon({ types, generations }) {
     name: "",
     primaryType: "Bug",
     secondaryType: "None",
-    generation: "I"
+    generation: "I",
   });
 
   const handleChange = (e) => {
@@ -65,8 +65,12 @@ function AddPokemon({ types, generations }) {
                   onChange={handleChange}
                 />
                 <FormText>
-      We recommend adding a Pokémon by its <a href="https://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_National_Pok%C3%A9dex_number">correct Pokedex id</a>. 
-    </FormText>
+                  We recommend adding a Pokémon by its{" "}
+                  <a href="https://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_National_Pok%C3%A9dex_number">
+                    correct Pokedex id
+                  </a>
+                  .
+                </FormText>
               </Col>
             </FormGroup>
             <FormGroup row>
@@ -89,11 +93,19 @@ function AddPokemon({ types, generations }) {
                 Primary Type
               </Label>
               <Col sm={10}>
-                <Input id="primaryType" name="primaryType" type="select" value={data.primaryType}
-                  onChange={handleChange}>
-                  {types && types.map((type, id) => (
-                    <option value={type.name} key={id}>{type.name}</option>
-                  ))}
+                <Input
+                  id="primaryType"
+                  name="primaryType"
+                  type="select"
+                  value={data.primaryType}
+                  onChange={handleChange}
+                >
+                  {types &&
+                    types.map((type, id) => (
+                      <option value={type.name} key={id}>
+                        {type.name}
+                      </option>
+                    ))}
                 </Input>
               </Col>
             </FormGroup>
@@ -102,12 +114,20 @@ function AddPokemon({ types, generations }) {
                 Secondary Type
               </Label>
               <Col sm={10}>
-                <Input id="secondaryType" name="secondaryType" type="select" value={data.secondaryType}
-                  onChange={handleChange}>
+                <Input
+                  id="secondaryType"
+                  name="secondaryType"
+                  type="select"
+                  value={data.secondaryType}
+                  onChange={handleChange}
+                >
                   <option value="None">None</option>
-                  {types && types.map((type, id) => (
-                    <option value={type.name} key={id}>{type.name}</option>
-                  ))}
+                  {types &&
+                    types.map((type, id) => (
+                      <option value={type.name} key={id}>
+                        {type.name}
+                      </option>
+                    ))}
                 </Input>
               </Col>
             </FormGroup>
@@ -116,11 +136,19 @@ function AddPokemon({ types, generations }) {
                 Generation
               </Label>
               <Col sm={10}>
-                <Input id="generation" name="generation" type="select" value={data.generation}
-                  onChange={handleChange}>
-                  {generations && generations.map((generation, id) => (
-                    <option value={generation.name} key={id}>{generation.name}</option>
-                  ))}
+                <Input
+                  id="generation"
+                  name="generation"
+                  type="select"
+                  value={data.generation}
+                  onChange={handleChange}
+                >
+                  {generations &&
+                    generations.map((generation, id) => (
+                      <option value={generation.name} key={id}>
+                        {generation.name}
+                      </option>
+                    ))}
                 </Input>
               </Col>
             </FormGroup>

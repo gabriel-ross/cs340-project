@@ -5,7 +5,6 @@ import {
   NavLink,
   Nav,
   NavbarText,
-  NavbarToggler,
   NavbarBrand,
 } from "reactstrap";
 
@@ -14,7 +13,6 @@ function NavBar() {
     <div>
       <Navbar color="primary" dark expand="md" fixed="top" light>
         <NavbarBrand href="/">PokéDex</NavbarBrand>
-        <NavbarToggler onClick={function noRefCheck() {}} />
         <Collapse navbar>
           <Nav className="me-auto" navbar>
             <NavItem>

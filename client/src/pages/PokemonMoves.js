@@ -8,17 +8,11 @@ import {
   Col,
   Table,
   Button,
-  Form,
-  Input,
   UncontrolledCollapse,
 } from "reactstrap";
-import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 
 function PokemonMoves() {
-  let [searchParams, setSearchParams] = useSearchParams();
-  let [query, setQuery] = useState(searchParams.get("query"));
-
   const [moves, setMoves] = useState(null);
   const [pokemon, setPokemon] = useState(null);
   const [pokeMoves, setpokeMoves] = useState(null);
@@ -54,25 +48,6 @@ function PokemonMoves() {
         </div>
         <Row>
           <Col>
-            <div className="mt-4">
-              <Form>
-                <Row xs="2">
-                  <Col>
-                    <Input
-                      bsSize="sm"
-                      type="search"
-                      value={query}
-                      placeholder="Search by Pokémon or Move name..."
-                    />
-                  </Col>
-                  <Col>
-                    <Button color="primary" outline size="sm">
-                      Search
-                    </Button>
-                  </Col>
-                </Row>
-              </Form>
-            </div>
             <Table className="mt-3" hover responsive>
               <thead>
                 <tr>
@@ -89,10 +64,9 @@ function PokemonMoves() {
                       <td>{pokeMove.move_id}</td>
                       <td>
                         <div>
-                          <Button color="primary" outline size="sm">
-                            Edit
-                          </Button>{" "}
-                          <DeleteButton route={`/pokemon/${pokeMove.pokemon_id}/moves/${pokeMove.move_id}`}/>
+                          <DeleteButton
+                            route={`/pokemon/${pokeMove.pokemon_id}/moves/${pokeMove.move_id}`}
+                          />
                         </div>
                       </td>
                     </tr>

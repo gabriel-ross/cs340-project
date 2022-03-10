@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import NavBar from "../components/Navbar";
 import AddMovesForm from "../components/AddMoves";
+import EditButton from "../components/EditMoves";
 import DeleteButton from "../components/DeleteButton";
 import {
   Container,
@@ -59,9 +60,12 @@ function Moves() {
                       <td>{move.type}</td>
                       <td>
                         <div>
-                          <Button color="primary" outline size="sm">
-                            Edit
-                          </Button>{" "}
+                          <EditButton
+                            id={move.id}
+                            name={move.name}
+                            type={move.type}
+                            types={types}
+                          />{" "}
                           <DeleteButton route={`/moves/${move.id}`}/>
                         </div>
                       </td>
