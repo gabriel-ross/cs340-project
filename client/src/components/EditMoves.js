@@ -35,7 +35,7 @@ function EditMoves({id, name, type, types}) {
         Edit
       </Button>
       <Modal isOpen={modal} toggle={toggle}>
-        <ModalHeader toggle={toggle}>Edit Moves</ModalHeader>
+        <ModalHeader toggle={toggle}>Edit Move</ModalHeader>
         <ModalBody>
           <Form id="editMoves" onSubmit={handleSubmit}>
             <FormGroup row>
