@@ -61,7 +61,7 @@ function EditPokemon({
         Edit
       </Button>
       <Modal size="lg" isOpen={modal} toggle={toggle}>
-        <ModalHeader toggle={toggle}>Edit Moves</ModalHeader>
+        <ModalHeader toggle={toggle}>Edit Pokemon</ModalHeader>
         <ModalBody>
           <Form id="editPokemon" onSubmit={handleSubmit}>
             <FormGroup row>

@@ -44,7 +44,7 @@ function EditTypes({ id, name }) {
         Edit
       </Button>
       <Modal isOpen={modal} toggle={toggle}>
-        <ModalHeader toggle={toggle}>Edit Types</ModalHeader>
+        <ModalHeader toggle={toggle}>Edit Type</ModalHeader>
         <ModalBody>
           <Form id="editTypes" onSubmit={handleSubmit}>
             <FormGroup row>
