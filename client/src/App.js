@@ -9,20 +9,21 @@ import {
   Col,
   Table,
   Button,
-  Form,
+  Label,
   Input,
   UncontrolledCollapse,
 } from "reactstrap";
-import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 
 function App() {
-  let [searchParams, setSearchParams] = useSearchParams();
-  let [query, setQuery] = useState(searchParams.get("query") || "");
   const [pokemon, setPokemon] = useState(null);
   const [filteredPokemon, setFilteredPokemon] = useState(null);
   const [types, setTypes] = useState(null);
   const [generations, setGenerations] = useState(null);
+  const [data, setData] = useState({
+    type: "",
+    generation: "",
+  });
 
   useEffect(() => {
     axios.get("/pokemon").then((response) => {
@@ -36,23 +37,21 @@ function App() {
       setGenerations(response.data);
     });
   }, []);
-
-  const handleChange = (e) => {
-    const value = e.target.value;
-    setQuery(value);
+  const handleClear = (e) => {
+    setFilteredPokemon(pokemon);
   };
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    let result = pokemon.filter(function (poke) {
-      console.log(poke.name.toLowerCase() === query.toLowerCase());
-      return (
-        poke.name.toLowerCase() === query.toLowerCase() ||
-        poke.primaryType.toLowerCase() === query.toLowerCase() ||
-        (poke.secondaryType &&
-          poke.secondaryType.toLowerCase() === query.toLowerCase())
-      );
+  const handleFilter = (e) => {
+    const value = e.target.value;
+    setData({
+      ...data,
+      [e.target.name]: value,
     });
-    setFilteredPokemon(result);
+    handleSubmit(value);
+  };
+  const handleSubmit = async (value) => {
+    await axios.get(`/pokemon/?type=${value}`).then((response) => {
+      setFilteredPokemon(response.data);
+    });
   };
 
   return (
@@ -70,28 +69,40 @@ function App() {
             <AddPokemonForm types={types} generations={generations} />
           </UncontrolledCollapse>
         </div>
-        <Row>
-          <Col>
-            <div className="mt-4">
-              <Form onSubmit={handleSubmit}>
-                <Row xs="2">
-                  <Col>
-                    <Input
-                      bsSize="sm"
-                      type="search"
-                      value={query}
-                      onChange={handleChange}
-                      placeholder="Search by Pokémon or by Type..."
-                    />
-                  </Col>
-                  <Col>
-                    <Button color="primary" outline size="sm">
-                      Search
-                    </Button>
-                  </Col>
-                </Row>
-              </Form>
-            </div>
+        <Row className="justify-content-end">
+          <Label
+            for="primaryType"
+            style={{ textAlign: "right" }}
+            sm={2}
+          >
+            Filter by Type
+          </Label>
+          <Col sm={2}>
+            <Input
+              id="type"
+              name="type"
+              type="select"
+              value={data.type}
+              onChange={handleFilter}
+            >
+              {types &&
+                types.map((type, id) => (
+                  <option value={type.name} key={id}>
+                    {type.name}
+                  </option>
+                ))}
+            </Input>
+          </Col>
+          <Col md="2">
+            <Button
+              color="primary"
+              outline
+              size="md"
+              onClick={handleClear}
+              block
+            >
+              Clear
+            </Button>
           </Col>
         </Row>
         <Row>
@@ -118,21 +129,29 @@ function App() {
                         <td>{poke.secondaryType}</td>
                         <td>{poke.generation}</td>
                         <td>
-                          <div>
-                            <EditButton
-                              id={poke.id}
-                              name={poke.name}
-                              primaryType={poke.primaryType}
-                              secondaryType={poke.secondaryType}
-                              generation={poke.generation}
-                              types={types}
-                              generations={generations}
-                            />{" "}
-                            <DeleteButton route={`/pokemon/${poke.id}`} />
-                          </div>
+                          <EditButton
+                            id={poke.id}
+                            name={poke.name}
+                            primaryType={poke.primaryType}
+                            secondaryType={poke.secondaryType}
+                            generation={poke.generation}
+                            types={types}
+                            generations={generations}
+                          />{" "}
+                          <DeleteButton route={`/pokemon/${poke.id}`} />
                         </td>
                       </tr>
                     ))}
+                  {filteredPokemon.length === 0 && (
+                    <tr>
+                      <th scope="row"></th>
+                      <th>None found.</th>
+<th></th>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                    </tr>
+                  )}
                 </tbody>
               </Table>
             )}
